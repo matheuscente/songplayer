@@ -25,61 +25,90 @@ export class DbManager {
     database: Database.Database
   ): { success: true } | { success: false; error: Error } {
     try {
-      const vehicle = this.createTable(
+      const songs = this.createTable(
         database,
-        "vehicles",
+        "songs",
         `   
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                plate TEXT UNIQUE NOT NULL,
-                brand TEXT NOT NULL,
-                model TEXT NOT NULL,
-                manufacture_year INT NOT NULL`
+                name TEXT UNIQUE NOT NULL,
+                year INT NOT NULL,
+                duration INT NOT NULL`
       );
 
-      const car = this.createTable(
+      const albums = this.createTable(
         database,
-        "cars",
+        "albums",
         `
-         id INTEGER PRIMARY KEY,
-        doors_number INTEGER NOT NULL,
-        fuel_type TEXT NOT NULL,
-        CONSTRAINT fk_car_vehicle FOREIGN KEY (id)
-        REFERENCES vehicles(id)
-        ON DELETE CASCADE`
-      );
-
-      const bus = this.createTable(
-        database,
-        "buses",
+         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        year INT NOT NULL,
+        songs_number INT NOT NULL,
+        duration INT NOT NULL,
+        artist_id INT NOT NULL,
+        CONSTRAINT fk_artist_album FOREIGN KEY (artist_id)
+        REFERENCES artists(id)
         `
-         id INTEGER PRIMARY KEY,
-        seats_number INTEGER NOT NULL,
-        has_bathroom BOOLEAN NOT NULL,
-        CONSTRAINT fk_bus_vehicle FOREIGN KEY (id)
-        REFERENCES vehicles(id)
-        ON DELETE CASCADE`
       );
 
-      const moto = this.createTable(
+      const artists = this.createTable(
         database,
-        "motos",
+        "artists",
+        `
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        nationality TEXT NOT NULL
+        `
+      );
+
+      const composers = this.createTable(
+        database,
+        "composers",
         `  
-         id INTEGER PRIMARY KEY,
-        displacements INTEGER NOT NULL,
-        start_type TEXT NOT NULL,
-        CONSTRAINT fk_moto_vehicle FOREIGN KEY (id)
-        REFERENCES vehicles(id)
-        ON DELETE CASCADE`
+         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL
+        `
       );
 
-      if ("error" in vehicle) {
-        return vehicle;
-      } else if ("error" in bus) {
-        return bus;
-      } else if ("error" in moto) {
-        return moto;
-      } else if ("error" in car) {
-        return car;
+       const songAlbum = this.createTable(
+        database,
+        "song_album",
+        `  
+         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        song_id INT NOT NULL,
+        album_id INT NOT NULL,
+        CONSTRAINT fk_song_album FOREIGN KEY (song_id)
+        REFERENCES songs(id),
+        CONSTRAINT fk_album_song FOREIGN KEY (album_id)
+        REFERENCES albums(id)
+        `
+      );
+
+       const songComposer = this.createTable(
+        database,
+        "song_composer",
+        `  
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        song_id INT NOT NULL,
+        composer_id INT NOT NULL,
+        CONSTRAINT fk_song_composer FOREIGN KEY (song_id)
+        REFERENCES songs(id),
+        CONSTRAINT fk_composer_song FOREIGN KEY (composer_id)
+        REFERENCES composers(id)
+        `
+      );
+
+      if ("error" in songs) {
+        return songs;
+      } else if ("error" in albums) {
+        return albums;
+      } else if ("error" in artists) {
+        return artists;
+      }  else if ("error" in composers) {
+        return composers;
+      } else if ("error" in songAlbum) {
+        return songAlbum;
+      } else if ("error" in songComposer) {
+        return songComposer;
       }
 
       return { success: true };
@@ -93,10 +122,12 @@ export class DbManager {
       .prepare("SELECT name FROM sqlite_master WHERE type='table';")
       .all();
     const acceptNames: string[] = [
-      "vehicles",
-      "buses",
-      "motos",
-      "cars",
+      "songs",
+      "composers",
+      "albums",
+      "artists",
+      "song_composer",
+      "song_album",
       "sqlite_sequence",
     ];
 

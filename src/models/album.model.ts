@@ -1,3 +1,4 @@
+import { Joi } from "celebrate";
 import { iId, Duration } from "./global.model"
 
 export interface iAlbum {
@@ -14,3 +15,18 @@ export type DatabaseAlbum = iAlbum & iId & Duration<number>
 
 //album vindo do cliente
 export type ClientAlbum = iAlbum & Duration<string>
+
+//validação para album vindo do cliente
+export const albumSchemaValidate = Joi.object().keys({
+  title: Joi.string().max(255).min(1).required(),
+  year: Joi.number().max(new Date().getFullYear()).required(),
+  songsNumber: Joi.number().min(1).required(),
+  artistId: Joi.number().min(1).required(),
+  duration: Joi.string()
+    .pattern(/^\d{1,3}:[0-5]\d:[0-5]\d$/)
+    .messages({
+      "string.pattern.base": "O campo deve estar no formato HH:MM:SS",
+      "string.empty": "O campo é obrigatório"
+    }).required(),
+});
+

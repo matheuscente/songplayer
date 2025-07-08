@@ -1,4 +1,5 @@
 import Database from "better-sqlite3";
+import { InternalServerError } from "../../errors/internal-server.error";
 export class DbManager {
   private createTable(
     database: Database.Database,
@@ -135,7 +136,7 @@ export class DbManager {
       (table) => !acceptNames.includes((table as { name: string }).name)
     );
     if (hasErrors.length >= 1 || allTables.length < 5) {
-      return { success: false, error: new Error("invalid table name") };
+      return { success: false, error: new InternalServerError("invalid table name") };
     }
     return { success: true };
   }

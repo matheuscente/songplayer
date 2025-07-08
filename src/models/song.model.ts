@@ -1,4 +1,4 @@
-import { iId, Duration, iName } from "./global.model";
+import { iId, Duration, iName, iCrud} from "./global.model";
 import { Joi } from "celebrate";
 
 type Song = {
@@ -10,6 +10,9 @@ export type DatabaseSong = Song & iId & Duration<number>;
 
 //musica vinda do cliente
 export type ClientSong = Song & Duration<string>;
+
+//interface do repository de musicas
+export interface iSongRepository extends iCrud<ClientSong, DatabaseSong> {}
 
 //validação para musica vinda do cliente
 export const songSchemaValidate = Joi.object().keys({

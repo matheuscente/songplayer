@@ -16,6 +16,17 @@ export type DatabaseAlbum = iAlbum & iId & Duration<number>
 //album vindo do cliente
 export type ClientAlbum = iAlbum & Duration<string>
 
+//interface do repository de albums
+export interface iSongRepository {
+  getAll(): DatabaseAlbum[],
+  getById(id: number): DatabaseAlbum | undefined,
+  create(song: ClientAlbum): void,
+  update(id: number, song: ClientAlbum): void,
+  delete(id: number): void,
+  
+}
+
+
 //validação para album vindo do cliente
 export const albumSchemaValidate = Joi.object().keys({
   title: Joi.string().max(255).min(1).required(),

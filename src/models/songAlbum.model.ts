@@ -1,8 +1,54 @@
-import { iId } from "./global.model"
+import { NextFunction, Request, Response } from "express"
+import { IAlbumService, IDatabaseAlbum } from "./album.model"
+import { IDatabaseSong, ISongService } from "./song.model"
+import { Joi } from "celebrate"
 
-export interface ClientSongAlbum {
-    musicId: number,
+//interface da entidade sem id
+export interface ISongAlbum {
+    songId: number,
     albumId: number 
 }
 
-export type DatabaseSongAlbum = ClientSongAlbum & iId
+//musica com seus albuns correspondentes
+export interface ISongWithAlbums extends IDatabaseSong {
+    albums: IDatabaseAlbum[]
+}
+
+//interface de retorno do repository da relação
+export type AlbumAndSongReturns = IDatabaseAlbum & IDatabaseSong
+
+
+//interface de service
+export interface ISongAlbumService{
+    setDependencies(songService: ISongService, albumService: IAlbumService): void,
+    create(songAlbum: ISongAlbum): void,
+    delete(songId: number, albumId: number): void,
+    getById(songId: number, albumId: number):  ISongAlbum | undefined,
+    getByAlbumId(albumId: number): ISongAlbum[],
+    getBySongId(songId: number):  ISongAlbum[]
+}
+
+//interface de controller
+export interface ISongAlbumController {
+    create(req: Request, res: Response, next: NextFunction): void,
+    delete(req: Request, res: Response, next: NextFunction): void
+}
+
+//interface de repository
+export interface ISongAlbumRepository {
+    create(songAlbum: ISongAlbum): void,
+    delete(songId: number, albumId: number): void,
+    getById(songId: number, albumId: number):  ISongAlbum | undefined,
+    getByAlbumId(albumId: number): ISongAlbum[],
+    getBySongId(songId: number):  ISongAlbum[]
+}
+
+
+
+//validação para songAlbum vinda do cliente
+
+export const songAlbumSchemaValidate = Joi.object().keys({
+    songId: Joi.number().min(1).required(),
+    albumId: Joi.number().min(1).required()
+})
+.options({abortEarly: false})

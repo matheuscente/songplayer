@@ -7,13 +7,16 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.10",
     "@types/better-sqlite3": "^7.6.13",
     "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.0.10",
+    "jest": "^30.0.4",
+    "ts-jest": "^29.4.0",
     "typescript": "^5.8.3"
   },
   "dependencies": {

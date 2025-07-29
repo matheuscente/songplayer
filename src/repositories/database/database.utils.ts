@@ -31,7 +31,7 @@ export class DbManager {
         "songs",
         `   
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT UNIQUE NOT NULL,
+                name TEXT NOT NULL,
                 year INT NOT NULL,
                 duration INT NOT NULL`
       );
@@ -43,8 +43,6 @@ export class DbManager {
          id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
         year INT NOT NULL,
-        songs_number INT NOT NULL,
-        duration INT NOT NULL,
         artist_id INT NOT NULL,
         CONSTRAINT fk_artist_album FOREIGN KEY (artist_id)
         REFERENCES artists(id)
@@ -56,7 +54,7 @@ export class DbManager {
         "artists",
         `
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
+        name TEXT UNIQUE NOT NULL,
         nationality TEXT NOT NULL
         `
       );
@@ -73,14 +71,16 @@ export class DbManager {
        const songAlbum = this.createTable(
         database,
         "song_album",
-        `  
-         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        `
         song_id INT NOT NULL,
         album_id INT NOT NULL,
+        PRIMARY KEY (song_id, album_id),
         CONSTRAINT fk_song_album FOREIGN KEY (song_id)
-        REFERENCES songs(id),
+        REFERENCES songs(id)
+        ON DELETE CASCADE,
         CONSTRAINT fk_album_song FOREIGN KEY (album_id)
         REFERENCES albums(id)
+        ON DELETE CASCADE
         `
       );
 
@@ -88,13 +88,16 @@ export class DbManager {
         database,
         "song_composer",
         `  
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
         song_id INT NOT NULL,
         composer_id INT NOT NULL,
+        composition TEXT NOT NULL,
+        PRIMARY KEY (song_id, composer_id),
         CONSTRAINT fk_song_composer FOREIGN KEY (song_id)
-        REFERENCES songs(id),
+        REFERENCES songs(id)
+        ON DELETE CASCADE,
         CONSTRAINT fk_composer_song FOREIGN KEY (composer_id)
         REFERENCES composers(id)
+        ON DELETE CASCADE
         `
       );
 

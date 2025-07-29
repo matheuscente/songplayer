@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { NotFoundError } from "../errors/not-found.error";
-import { IClientAlbum, IDatabaseAlbum, IAlbumController, IAlbumService } from "../models/album.model";
+import { IClientAlbum, IAlbumController, IAlbumService, UpdateAlbum } from "../models/album.model";
 import trimString from "../utils/trimString.utils";
 import { IGetAlbumWithRelationshipService } from "../models/getAlbumsWithRelationship.model";
 
@@ -18,7 +18,7 @@ class AlbumController implements IAlbumController {
         if(relations !== "true") throw new NotFoundError('parametro query inválido')
          const data = this.albumWithRelationship.getAll()
         if(data.length === 0) throw new NotFoundError('não existem albuns')
-        res.status(200).json({data})
+        res.status(200).json(data)
         return
       }
       const albums = this.albumService.getAll();
@@ -38,7 +38,7 @@ class AlbumController implements IAlbumController {
         if(relations !== "true") throw new NotFoundError('parametro query inválido')
         const data = this.albumWithRelationship.getById(Number(albumId))
         if(!data) new NotFoundError('album não encontrado')
-        res.status(200).json({data})
+        res.status(200).json(data)
         return
       }
       const album = this.albumService.getById(albumId);
@@ -67,14 +67,10 @@ class AlbumController implements IAlbumController {
 
   update(req: Request, res: Response, next: NextFunction) {
     try {
-      const albumId: number = Number(req.params.id);
-      const album: IClientAlbum = req.body;
+      const album: UpdateAlbum = req.body;
       const trimmedAlbum = trimString(album)
-      const albumToUpdate: IDatabaseAlbum = {
-        albumId,
-        ...trimmedAlbum
-      }
-      this.albumService.update(albumToUpdate);
+
+      this.albumService.update(trimmedAlbum);
 
       res.status(200).json({ message: "album atualizada com sucesso" });
     } catch (err) {

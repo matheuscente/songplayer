@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { NotFoundError } from "../errors/not-found.error";
-import { IClientComposer, IDatabaseComposer, IComposerController, IComposerService } from "../models/composer.model";
+import { IClientComposer, IComposerController, IComposerService } from "../models/composer.model";
 import trimString from "../utils/trimString.utils";
 import { IGetComposerWithRelationshipService } from "../models/getComposersWithRelationship.model";
 
@@ -18,7 +18,7 @@ class ComposerController implements IComposerController {
         if(relations !== "true") throw new NotFoundError('parametro query inválido')
          const data = this.composerWithRelationship.getAll()
         if(data.length === 0) throw new NotFoundError('não existem compositores')
-        res.status(200).json({data})
+        res.status(200).json(data)
         return
       }
       const composers = this.composerService.getAll();
@@ -38,7 +38,7 @@ class ComposerController implements IComposerController {
         if(relations !== "true") throw new NotFoundError('parametro query inválido')
          const data = this.composerWithRelationship.getById(composerId)
         if(!data) new NotFoundError('compositor não existente')
-        res.status(200).json({data})
+        res.status(200).json(data)
         return
       }
       const composer = this.composerService.getById(composerId);
@@ -67,14 +67,10 @@ class ComposerController implements IComposerController {
 
   update(req: Request, res: Response, next: NextFunction) {
     try {
-      const composerId: number = Number(req.params.id);
       const composer = req.body;
       const trimmedComposer = trimString(composer)
-      const composerToUpdate: IDatabaseComposer = {
-        composerId,
-        ...trimmedComposer
-      }
-      this.composerService.update(composerToUpdate);
+
+      this.composerService.update(trimmedComposer);
 
       res.status(200).json({ message: "compositor atualizada com sucesso" });
     } catch (err) {

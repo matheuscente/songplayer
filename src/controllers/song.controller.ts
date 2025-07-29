@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import { NotFoundError } from "../errors/not-found.error";
 import {
   IClientSong,
-  IDatabaseSong,
   ISongController,
   ISongService,
 } from "../models/song.model";
@@ -23,7 +22,7 @@ class SongController implements ISongController {
         if(relations !== "true") throw new NotFoundError('parametro query inválido')
          const data = this.songWithRelationship.getAll()
         if(data.length === 0) throw new NotFoundError('não existem músicas')
-        res.status(200).json({data})
+        res.status(200).json(data)
         return
       }
       const songs = this.songService.getAll();
@@ -45,7 +44,7 @@ class SongController implements ISongController {
          const data = this.songWithRelationship.getById(songId)
         if(!data) new NotFoundError('música não existente')
 
-        res.status(200).json({data})
+        res.status(200).json(data)
         return
       }
       const song = this.songService.getById(songId);
@@ -73,15 +72,11 @@ class SongController implements ISongController {
   }
 
   update(req: Request, res: Response, next: NextFunction) {
-    try {
-      const songId: number = Number(req.params.id);
+    try{
       const song = req.body;
       const trimmedSong = trimString(song)
-      const songToUpdate: IDatabaseSong = {
-        songId,
-        ...trimmedSong,
-      };
-      this.songService.update(songToUpdate);
+
+      this.songService.update(trimmedSong);
 
       res.status(200).json({ message: "música atualizada com sucesso" });
     } catch (err) {

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { NotFoundError } from "../errors/not-found.error";
-import { IClientArtist, IDatabaseArtist, IArtistController, IArtistService } from "../models/artist.model";
+import { IClientArtist, IArtistController, IArtistService } from "../models/artist.model";
 import trimString from "../utils/trimString.utils";
 import { IGetArtistWithRelationshipService } from "../models/getArtistsWithRelationship.model";
 
@@ -18,7 +18,7 @@ class ArtistController implements IArtistController {
         if(relations !== "true") throw new NotFoundError('parametro query inválido')
          const data = this.artistWithRelationship.getAll()
         if(data.length === 0) throw new NotFoundError('não existem artistas')
-        res.status(200).json({data})
+        res.status(200).json(data)
         return
       }
       const artists = this.artistService.getAll();
@@ -38,7 +38,7 @@ class ArtistController implements IArtistController {
         if(relations !== "true") throw new NotFoundError('parametro query inválido')
          const data = this.artistWithRelationship.getById(artistId)
         if(!data) new NotFoundError('artista não existente')
-        res.status(200).json({data})
+        res.status(200).json(data)
         return
       }
       const artist = this.artistService.getById(artistId);
@@ -67,14 +67,10 @@ class ArtistController implements IArtistController {
 
   update(req: Request, res: Response, next: NextFunction) {
     try {
-      const artistId: number = Number(req.params.id);
       const artist = req.body;
       const trimmedArtist = trimString(artist)
-      const artistToUpdate: IDatabaseArtist = {
-        artistId,
-        ...trimmedArtist
-      }
-      this.artistService.update(artistToUpdate);
+
+      this.artistService.update(trimmedArtist);
 
       res.status(200).json({ message: "artista atualizada com sucesso" });
     } catch (err) {

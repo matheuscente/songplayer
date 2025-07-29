@@ -14,7 +14,7 @@ class SongAlbumController implements ISongAlbumController {
         try{
             const {albumId, songId} = req.body
             this.songAlbumService.create({albumId: Number(albumId), songId: Number(songId)})
-            res.status(204).json({message: "relação criada com sucesso"})
+            res.status(201).json({message: "relação criada com sucesso"})
         } catch(err) {
             console.log(err);
             next(err); 

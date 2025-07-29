@@ -14,7 +14,7 @@ class SongComposerController implements ISongComposerController {
         try{
             const {composerId, songId, composition} = req.body
             this.songComposerService.create({composerId: Number(composerId), songId: Number(songId), composition})
-            res.status(204).json({message: "relação criada com sucesso"})
+            res.status(201).json({message: "relação criada com sucesso"})
         } catch(err) {
             console.log(err);
             next(err); 

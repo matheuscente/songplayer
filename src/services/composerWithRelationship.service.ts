@@ -39,7 +39,7 @@ class ComposerWithRelationship implements IGetComposerWithRelationshipService {
 
         if(relations.length === 0) return {...composer, songs: []}
         
-        const songs: number[] = relations.map((item) => item.songId)
+        const songs = relations.map((item) => ({song: item.songId, composition: item.composition}))
 
         return {...composer, songs}
     }

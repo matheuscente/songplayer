@@ -51,5 +51,7 @@ Uma API REST de estudo para gerenciamento de álbuns, músicas, compositores e a
 - para atualizar uma relação, deve usar a rota de deleção para deletar a mesma e usar a rota de criação para criar uma nova relação.
 - para buscar as entidades com suas relações, usar o parâmetro query ""relations=true"
 - o parâmetro query ""relations" só deve ser especificado com "true".
+- ao buscar compositor com suas relações, deve exibir o tipo de composição para cada música
+- ao buscar música com suas relações, deve exibir o tipo de composição para cada compositor.
 
 ## As rotas com seus respectivos esquemas estão na coleção postman, na pasta "postman" da página inicial deste repositório!

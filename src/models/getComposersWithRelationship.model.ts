@@ -4,7 +4,7 @@ import { ISongComposerService } from "./songComposer.model"
 
 //composer com seus songs correspondentes
 export interface IComposerWithSongs extends IDatabaseComposer {
-    songs: number[]
+    songs: {song: number, composition: string}[]
 }
 
 export interface IGetComposerWithRelationshipService {

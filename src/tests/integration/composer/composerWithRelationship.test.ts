@@ -90,13 +90,13 @@ describe('testes de integração de composer com suas relações',() => {
             {
                 composerId: 1,
                 ...composer1,
-                songs: [1, 2]
+                songs: [{song: 1, composition: "letra"}, {song: 2, composition: "letra"}]
             },
 
             {
                  composerId: 2,
                 ...composer2,
-                songs: [3]
+                songs: [{song: 3, composition: "letra"}]
             }
         ]
         
@@ -118,7 +118,7 @@ describe('testes de integração de composer com suas relações',() => {
             {
                 composerId: 1,
                 ...composer1,
-                songs: [1, 2]
+                songs: [{song: 1, composition: "letra"}, {song: 2, composition: "letra"}]
             }
         
         

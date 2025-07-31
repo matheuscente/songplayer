@@ -1,3 +1,4 @@
 /node_modules
 /lib
 config.env
+/src/generated/prisma

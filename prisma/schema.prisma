@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../production.db"
+}
+
+model albums {
+  id         Int          @id @default(autoincrement())
+  title      String
+  year       Int
+  artist_id  Int
+  artists    artists      @relation(fields: [artist_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  song_album song_album[]
+}
+
+model artists {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique(map: "sqlite_autoindex_artists_1")
+  nationality String
+  albums      albums[]
+}
+
+model composers {
+  id            Int             @id @default(autoincrement())
+  name          String
+  song_composer song_composer[]
+}
+
+model song_album {
+  song_id  Int
+  album_id Int
+  albums   albums @relation(fields: [album_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  songs    songs  @relation(fields: [song_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([song_id, album_id])
+}
+
+model song_composer {
+  song_id     Int
+  composer_id Int
+  composition String
+  composers   composers @relation(fields: [composer_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  songs       songs     @relation(fields: [song_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([song_id, composer_id])
+}
+
+model songs {
+  id            Int             @id @default(autoincrement())
+  name          String
+  year          Int
+  duration      Int
+  song_album    song_album[]
+  song_composer song_composer[]
+}

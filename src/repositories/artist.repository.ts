@@ -1,46 +1,26 @@
+import { PrismaClient } from "@prisma/client";
 import { IArtistRepository, IClientArtist, IDatabaseArtist } from "../models/artist.model";
-import Database from "better-sqlite3";
 
 class ArtistRepository implements IArtistRepository {
-    constructor(private readonly database: Database.Database) {}
-getAll(): IDatabaseArtist[] {
-        return this.database.prepare(`
-            SELECT a.id AS artistId, a.name AS artistName, a.nationality AS artistNationality
-            FROM artists AS a;
-            `).all() as IDatabaseArtist[]
+    constructor(private readonly database: PrismaClient) {}
+    async getAll(): Promise<IDatabaseArtist[]> {
+        return this.database.artists.findMany() as Promise<IDatabaseArtist[]>
     }
-    getById(id: number): IDatabaseArtist | undefined {
-        const artist =  this.database.prepare(`
-            SELECT a.id AS artistId, a.name AS artistName, a.nationality AS artistNationality
-            FROM artists AS a
-            WHERE a.id = ?;
-            `).get(id)
-
-            if(!artist) return undefined
-            return artist as IDatabaseArtist
+     async getById(id: number): Promise<IDatabaseArtist | undefined> {
+        const artist =  this.database.artists.findUnique({where: {id}})
+            return artist as Promise<IDatabaseArtist>
     }
 
-    create(artist: IClientArtist): number {
-        const data = this.database.prepare(`
-            INSERT INTO artists (name, nationality)
-            VALUES (?,?);
-            `).run(artist.artistName,artist.artistNationality).lastInsertRowid
-
-        return Number(data)
+     async create(artist: IClientArtist): Promise<number> {
+        const data = await this.database.artists.create({data: artist})
+        return Number(data.id)
     }
-    update(artist: IDatabaseArtist): void {
-        this.database.prepare(`
-            UPDATE artists AS a
-            SET name = ?, nationality = ?
-            WHERE a.id = ?;
-            `).run(artist.artistName, artist.artistNationality, artist.artistId)
+     async update(artist: IDatabaseArtist): Promise<void> {
+        this.database.artists.update({data: artist, where: {id: artist.id}})
     }
-    delete(id: number): void {
-        this.database.prepare(`
-            DELETE FROM artists
-            WHERE id = ?;
-            `).run(id)
-    }
+     async delete(id: number): Promise<void> {
+        this.database.artists.delete({where: {id}})
+     }
 }
 
 export default ArtistRepository

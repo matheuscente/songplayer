@@ -1,45 +1,26 @@
+import { PrismaClient } from "@prisma/client";
 import { ISongRepository, IDatabaseSong, IClientSong } from "../models/song.model";
-import Database from "better-sqlite3";
 
 class SongRepository implements ISongRepository {
-    constructor(private readonly database: Database.Database) {}
-getAll(): IDatabaseSong[] {
-        return this.database.prepare(`
-            SELECT s.id AS songId, s.name AS songName, s.year AS songYear, s.duration AS songDuration
-            FROM songs AS s
-            ORDER BY s.year DESC;
-            `).all() as IDatabaseSong[]
+    constructor(private readonly database: PrismaClient) {}
+    async getAll(): Promise<IDatabaseSong[]> {
+        return this.database.songs.findMany()
     }
-    getById(id: number): IDatabaseSong | undefined {
-        const song =  this.database.prepare(`
-            SELECT s.id AS songId, s.name AS songName, s.year AS songYear, s.duration AS songDuration
-            FROM songs AS s
-            WHERE s.id = ?;
-            `).get(id)
-
+    async getById(id: number): Promise<IDatabaseSong | undefined> {
+        const song =  await this.database.songs.findUnique({where: {id}})
             if(!song) return undefined
-            return song as IDatabaseSong
+            return song
     }
-    create(song: IClientSong): number {
-        const data = this.database.prepare(`
-            INSERT INTO songs (name, year, duration)
-            VALUES (?, ?, ?);
-            `).run(song.songName, song.songYear, song.songDuration).lastInsertRowid
-
+    async create(song: IClientSong): Promise<number> {
+        const data = await this.database.songs.create({data: song})
         return Number(data)
     }
-    update(song: IDatabaseSong): void {
-        this.database.prepare(`
-            UPDATE songs
-            SET name = ?, year = ?, duration = ?
-            WHERE songs.id = ?;
-            `).run(song.songName, song.songYear, song.songDuration, song.songId)
+    async update(song: IDatabaseSong): Promise<void> {
+
+        this.database.songs.update({data: song, where: {id: song.id}})
     }
-    delete(id: number): void {
-        this.database.prepare(`
-            DELETE FROM songs
-            WHERE id = ?;
-            `).run(id)
+    async delete(id: number): Promise<void> {
+        this.database.songs.delete({where: {id}})
     }
 }
 

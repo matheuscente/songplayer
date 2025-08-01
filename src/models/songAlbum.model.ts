@@ -5,8 +5,8 @@ import { Joi } from "celebrate"
 
 //interface da entidade sem id
 export interface ISongAlbum {
-    songId: number,
-    albumId: number 
+    song_id: number,
+    album_id: number 
 }
 
 //musica com seus albuns correspondentes
@@ -36,11 +36,11 @@ export interface ISongAlbumController {
 
 //interface de repository
 export interface ISongAlbumRepository {
-    create(songAlbum: ISongAlbum): void,
-    delete(songId: number, albumId: number): void,
-    getById(songId: number, albumId: number):  ISongAlbum | undefined,
-    getByAlbumId(albumId: number): ISongAlbum[],
-    getBySongId(songId: number):  ISongAlbum[]
+    create(songAlbum: ISongAlbum): Promise<void>,
+    delete(songId: number, albumId: number): Promise<void>,
+    getById(songId: number, albumId: number):  Promise<ISongAlbum | undefined>,
+    getByAlbumId(albumId: number): Promise<ISongAlbum[]>,
+    getBySongId(songId: number):  Promise<ISongAlbum[]>
 }
 
 
@@ -48,7 +48,7 @@ export interface ISongAlbumRepository {
 //validação para songAlbum vinda do cliente
 
 export const songAlbumSchemaValidate = Joi.object().keys({
-    songId: Joi.number().min(1).required(),
-    albumId: Joi.number().min(1).required()
+    song_id: Joi.number().min(1).required(),
+    album_id: Joi.number().min(1).required()
 })
 .options({abortEarly: false})

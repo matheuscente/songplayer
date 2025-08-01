@@ -28,30 +28,30 @@ class AlbumService implements IAlbumService {
   ) {
     this.artistService = artistService;
   }
-  getByArtistId(artistId: number): IDatabaseAlbum[] {
+  async getByArtistId(artistId: number): Promise<IDatabaseAlbum[]> {
     DataValidator.validator(idSchemaValidate, {id: artistId})
-    return this.albumRepository.getByArtistId(artistId) as IDatabaseAlbum[];
+    return this.albumRepository.getByArtistId(artistId)
   }
-  getAll(): IDatabaseAlbum[] {
+  async getAll(): Promise<IDatabaseAlbum[]> {
     return this.albumRepository.getAll();
   }
-  getById(id: number): IDatabaseAlbum | undefined {
+  async getById(id: number): Promise<IDatabaseAlbum | undefined> {
     DataValidator.validator(idSchemaValidate, {id})
     const album = this.albumRepository.getById(id);
     if (!album) return undefined;
-    return album as IDatabaseAlbum;
+    return album
   }
 
-  create(item: IClientAlbum): number {
+  async create(item: IClientAlbum): Promise<number> {
     DataValidator.validator(albumSchemaValidate, item)
 
     let albumId: number = 0;
     try {
-      runInTransaction(() => {
-      const artist = this.artistService.getById(item.artistId);
+      runInTransaction(async () => {
+      const artist = await this.artistService.getById(item.artist_id);
       if (!artist) throw new NotFoundError("artista não encontrado");
 
-      albumId = this.albumRepository.create(item);
+      albumId = await this.albumRepository.create(item);
 
     });
     }  catch (err) {
@@ -65,34 +65,34 @@ class AlbumService implements IAlbumService {
     return albumId;
   }
 
-  update(item: UpdateAlbum): void {
+  async update(item: UpdateAlbum): Promise<void> {
     DataValidator.validator(albumUpdateSchemaValidate, item)
-    runInTransaction(() => {
-      const album = this.getById(item.albumId);
+    runInTransaction(async () => {
+      const album = await this.getById(item.id);
       if (album) {
-        if (item.artistId) {
-          const hasArtist = this.artistService.getById(item.artistId);
+        if (item.artist_id) {
+          const hasArtist = await this.artistService.getById(item.artist_id);
           if (!hasArtist) throw new NotFoundError("artista não encontrado");
         }
 
         const updateAlbum: IDatabaseAlbum = {
-          albumId: item.albumId,
-          albumTitle: item.albumTitle ?? album.albumTitle,
-          albumYear: item.albumYear ?? album.albumYear,
-          artistId: item.artistId ?? album.artistId,
+          id: item.id,
+          title: item.title ?? album.title,
+          year: item.year ?? album.year,
+          artist_id: item.artist_id ?? album.artist_id,
         };
-        this.albumRepository.update(updateAlbum);
+        await this.albumRepository.update(updateAlbum);
       } else {
         throw new NotFoundError("album não encontrado");
       }
     });
   }
-  delete(id : number): void {
+  async delete(id : number): Promise<void> {
     DataValidator.validator(idSchemaValidate, {id})
-    runInTransaction(() => {
-      const album = this.getById(id);
+    runInTransaction(async () => {
+      const album = await this.getById(id);
       if (!album) throw new NotFoundError("album não encontrado");
-      this.albumRepository.delete(id);
+      await this.albumRepository.delete(id);
     });
   }
 }

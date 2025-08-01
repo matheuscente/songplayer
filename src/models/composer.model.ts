@@ -2,14 +2,14 @@ import { Joi } from "celebrate";
 import { ICrud, ICrudController} from "./global.model";
 
 export interface IClientComposer {
-  composerName: string
+  name: string
 }
 
 export interface IDatabaseComposer extends IClientComposer {
-  composerId: number
+  id: number
 }
 
-export type UpdateComposer = Partial<IClientComposer> & Pick<IDatabaseComposer, 'composerId'>
+export type UpdateComposer = Partial<IClientComposer> & Pick<IDatabaseComposer, 'id'>
 
 
 //interface repository
@@ -23,13 +23,13 @@ export interface IComposerService extends ICrud<IClientComposer, IDatabaseCompos
 
 //validação para compositor vindo do cliente
 export const composerSchemaValidate = Joi.object().keys({
-  composerName: Joi.string().max(255).min(1).required()
+  name: Joi.string().max(255).min(1).required()
 })
 .options({abortEarly: false});
 
 export const composerUpdateSchemaValidate = Joi.object().keys({
-  composerName: Joi.string().max(255).min(1).required(),
-  composerId: Joi.number().min(1).required()
+  name: Joi.string().max(255).min(1).required(),
+  id: Joi.number().min(1).required()
 })
 .options({abortEarly: false});
 

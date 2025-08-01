@@ -1,81 +1,40 @@
+import { PrismaClient } from "@prisma/client";
 import {
   IAlbumRepository,
   IClientAlbum,
   IDatabaseAlbum,
 } from "../models/album.model";
-import Database from "better-sqlite3";
 
 class AlbumRepository implements IAlbumRepository {
-  constructor(private readonly database: Database.Database) {}
+  constructor(private readonly database: PrismaClient) {}
 
-  getByArtistId(id: number): IDatabaseAlbum[]{
-    return this.database
-      .prepare(
-        `
-            SELECT a.id AS albumId, a.title AS albumTitle, a.artist_id AS artistId
-            FROM albums AS a
-            WHERE a.artist_Id = ?;
-            `
-      )
-      .all(id)  as IDatabaseAlbum[];
+  getByArtistId(id: number): Promise<IDatabaseAlbum[]> {
+    return this.database.albums.findMany({
+      where: {artist_id: id}
+    }) as Promise<IDatabaseAlbum[]>
   }
 
-  getAll(): IDatabaseAlbum[] {
-    return this.database
-      .prepare(
-        `
-            SELECT a.id AS albumId, a.title AS albumTitle
-            FROM albums AS a;
-            `
-      )
-      .all() as IDatabaseAlbum[];
+  async getAll(): Promise<IDatabaseAlbum[]> {
+    return this.database.albums.findMany() as Promise<IDatabaseAlbum[]>
   }
-  getById(id: number): IDatabaseAlbum | undefined {
-    const album = this.database
-      .prepare(
-        `
-            SELECT a.id AS albumId, a.title AS albumTitle, a.artist_id AS artistId, a.year AS albumYear
-            FROM albums AS a
-            WHERE a.id = ?;
-            `
-      )
-      .get(id);
+  async getById(id: number): Promise<IDatabaseAlbum | undefined> {
+    const album = await this.database.albums.findUnique({
+      where: {id}
+    })
 
     if (!album) return undefined;
     return album as IDatabaseAlbum;
   }
 
-  create(album: IClientAlbum): number {
-    const data = this.database
-      .prepare(
-        `
-            INSERT INTO albums (title, year, artist_id)
-            VALUES (?,?,?);
-            `
-      )
-      .run(album.albumTitle, album.albumYear, album.artistId).lastInsertRowid;
-    return Number(data);
+  async create(album: IClientAlbum): Promise<number> {
+    const data = await this.database.albums.create({data: album})
+    return Number(data.id);
   }
-  update(album: IDatabaseAlbum): void {
-    this.database
-      .prepare(
-        `
-            UPDATE albums AS a
-            SET title = ?, year = ?, artist_id = ?
-            WHERE a.id = ?;
-            `
-      )
-      .run(album.albumTitle, album.albumYear, album.artistId, album.albumId);
+  async update(album: IDatabaseAlbum): Promise<void> {
+    await this.database.albums.update({data: album, where: {id: album.id}})
   }
-  delete(id: number): void {
-    this.database
-      .prepare(
-        `
-            DELETE FROM albums
-            WHERE id = ?;
-            `
-      )
-      .run(id);
+  async delete(id: number): Promise<void> {
+    await this.database.albums.delete({where: {id}})
   }
 }
 

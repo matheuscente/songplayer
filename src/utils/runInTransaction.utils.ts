@@ -1,6 +1,4 @@
-import database from "../database";
-
-export function runInTransaction<T>(fn: () => T): T {
-  const transaction = database.transaction(fn);
-  return transaction();
+import prisma from "../prismaUtils/client"
+export async function runInTransaction<T>(fn: () => Promise<T | void>): Promise<T | void> {
+  return prisma.$transaction(() => fn());
 }

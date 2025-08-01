@@ -5,8 +5,8 @@ import { IComposerService } from "./composer.model"
 
 //interface da entidade sem id
 export interface ISongComposer {
-    songId: number,
-    composerId: number,
+    song_id: number,
+    composer_id: number,
     composition: string
 }
 
@@ -32,17 +32,17 @@ export interface ISongComposerService{
 
 //interface de repository
 export interface ISongComposerRepository {
-    getById(songId: number, composerId: number): ISongComposer | undefined,
-    getByComposerId(composerId: number): ISongComposer[],
-    getBySongId(songId: number): ISongComposer[],
-    create(songComposer: ISongComposer): void,
-    delete(songId: number, composerId: number): void
+    getById(songId: number, composerId: number): Promise<ISongComposer | undefined>,
+    getByComposerId(composerId: number): Promise<ISongComposer[]>,
+    getBySongId(songId: number): Promise<ISongComposer[]>,
+    create(songComposer: ISongComposer): Promise<void>,
+    delete(songId: number, composerId: number): Promise<void>
 }
 
 //validação para songAlbum vinda do cliente
 export const songComposerSchemaValidate = Joi.object().keys({
-  songId: Joi.number().min(1).required(),
-  composerId: Joi.number().min(1).required(),
+  song_id: Joi.number().min(1).required(),
+  composer_id: Joi.number().min(1).required(),
   composition: Joi.string().min(3).max(255).required()
 })
 

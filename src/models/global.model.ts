@@ -5,11 +5,11 @@ import { IDatabaseSong } from "./song.model";
 
 // interface crud padrão
 export interface ICrud<C, D, U>{
-  getAll(): D[],
-  getById(id: number): D | undefined,
-  create(item: C): number,
-  update(item: U | D): void,
-  delete(id: number): void
+  getAll(): Promise<D[]>,
+  getById(id: number): Promise<D | undefined>,
+  create(item: C): Promise<number>,
+  update(item: U | D): Promise<void>,
+  delete(id: number): Promise<void>
 }
 
 

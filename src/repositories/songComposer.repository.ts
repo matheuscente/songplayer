@@ -1,46 +1,26 @@
+import { PrismaClient } from "@prisma/client";
 import {ISongComposerRepository, ISongComposer } from "../models/songComposer.model";
-import Database from "better-sqlite3";
-
 
 class SongComposerRepository implements ISongComposerRepository {
-    constructor(private readonly database: Database.Database) {}
+    constructor(private readonly database: PrismaClient) {}
     
-    getById(songId: number, composerId: number): ISongComposer | undefined {
-        const data = this.database.prepare(`
-            SELECT sc.composer_id AS composerId, sc.song_id AS songId, sc.composition
-            FROM song_composer AS sc
-            WHERE sc.composer_id = ? AND sc.song_id = ?;
-            `).get(composerId, songId)
-
+    async getById(songId: number, composerId: number): Promise<ISongComposer | undefined> {
+        const data = await this.database.song_composer.findUnique({where: {song_id_composer_id: {song_id: songId, composer_id: composerId}}})
             if(!data) return undefined
-            return data as ISongComposer
+            return data
     }
-    create(songComposer: ISongComposer): void {
-        this.database.prepare(`
-            INSERT INTO song_composer (song_id, composer_id, composition)
-            VALUES (?,?, ?);
-            `).run(songComposer.songId, songComposer.composerId, songComposer.composition)
+    async create(songComposer: ISongComposer): Promise<void> {
+        await this.database.song_composer.create({data: songComposer})
     }
 
-    delete(songId: number, composerId: number): void {
-        this.database.prepare(`
-            DELETE FROM song_composer
-            WHERE song_id = ? AND composerId = ?;
-            `).run(songId, composerId)
+    async delete(songId: number, composerId: number): Promise<void> {
+        await this.database.song_composer.delete({where: {song_id_composer_id: {song_id: songId, composer_id: composerId}}})
     }
-    getByComposerId(composerId: number): ISongComposer[] {
-        return this.database.prepare(`
-            SELECT sc.composer_id AS composerId, sc.song_id AS songId, sc.composition
-            FROM song_composer AS sc
-            WHERE sc.composer_id = ?;
-            `).all(composerId) as ISongComposer[]
+    async getByComposerId(composerId: number): Promise<ISongComposer[]> {
+        return this.database.song_composer.findMany({where: {composer_id: composerId}})
     }
-    getBySongId(songId: number): ISongComposer[] {
-        return this.database.prepare(`
-            SELECT sc.composer_id AS composerId, sc.song_id AS songId, sc.composition
-            FROM song_composer AS sc
-            WHERE sc.song_id = ?;
-            `).all(songId)  as ISongComposer[]
+    async getBySongId(songId: number): Promise<ISongComposer[]> {
+        return this.database.song_composer.findMany({where: {song_id: songId}})
     }
 
 }

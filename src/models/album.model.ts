@@ -3,19 +3,19 @@ import { ICrud, ICrudController } from "./global.model"
 import { IArtistService } from "./artist.model";
 
 export interface IAlbum {
-    albumTitle: string,
-    albumYear: number,
-    artistId: number,
-    albumDuration?: string | number,
-    songsNumber?: number
+    title: string,
+    year: number,
+    artist_id: number,
+    duration?: string | number,
+    songs_number?: number
 }
 
-export type UpdateAlbum = Partial<IClientAlbum> & Pick<IDatabaseAlbum, 'albumId'>
+export type UpdateAlbum = Partial<IClientAlbum> & Pick<IDatabaseAlbum, 'id'>
 
 
 //album armarzenado no database
 export interface IDatabaseAlbum extends IAlbum {
-  albumId: number,
+  id: number,
 }
 
 //album vindo do cliente
@@ -23,7 +23,7 @@ export interface IClientAlbum extends IAlbum {}
 
 //interce repository
 export interface IAlbumRepository extends ICrud<IClientAlbum, IDatabaseAlbum, UpdateAlbum> {
-    getByArtistId(id: number): IDatabaseAlbum[]
+    getByArtistId(id: number): Promise<IDatabaseAlbum[]>
 }
 
 //interface de controller
@@ -34,7 +34,7 @@ export interface IAlbumService extends ICrud<IClientAlbum, IDatabaseAlbum, Updat
   setDependencies(
       artistService: IArtistService,
       ): void
-  getByArtistId(id: number): IDatabaseAlbum[]
+  getByArtistId(id: number): Promise<IDatabaseAlbum[]>
 }
 
 //validação para album vindo do cliente
@@ -47,9 +47,9 @@ export const albumSchemaValidate = Joi.object().keys({
  .options({ abortEarly: false });;
 
 export const albumUpdateSchemaValidate = albumSchemaValidate.fork(
-  ['albumTitle', 'albumYear', 'artistId'],
+  ['title', 'year', 'artist_id'],
   (schema) => schema.optional()
 ).keys({
   albumId: Joi.number().min(1).required()
-}).or('albumTitle', 'albumYear', 'artistId').options({ abortEarly: false });;
+}).or('title', 'yar', 'artist_id').options({ abortEarly: false });;
 

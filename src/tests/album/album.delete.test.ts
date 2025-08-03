@@ -2,6 +2,7 @@ import AlbumService from "../../services/album.service";
 import { IAlbumRepository, IDatabaseAlbum } from "../../models/album.model";
 import { ValidationError } from "../../errors/validation.error";
 import { NotFoundError } from "../../errors/not-found.error";
+import database from "../../prismaUtils/client"
 
 describe("testes unitários do método delete do service de album", () => {
   let service: AlbumService;
@@ -11,16 +12,16 @@ describe("testes unitários do método delete do service de album", () => {
   beforeEach(() => {
 albums = [
             {
-            albumId: 1,
-            albumTitle: 'teste',
-            albumYear: 2000,
-            artistId: 1
+            id: 1,
+            title: 'teste',
+            year: 2000,
+            artist_id: 1
         },
         {
-            albumId: 2,
-            albumTitle: 'teste2',
-            albumYear: 2000,
-            artistId: 2
+            id: 2,
+            title: 'teste2',
+            year: 2000,
+            artist_id: 2
         }
     ]
 
@@ -37,19 +38,19 @@ albums = [
    
 
     //instância de service com repositório mockado
-    service = new AlbumService(mockRepository);
+    service = new AlbumService(mockRepository, database);
 
     //comportamento do mock repository
-    mockRepository.getById.mockImplementation((id: number) => {
-      const album = albums.find((album) => album.albumId === id);
+    mockRepository.getById.mockImplementation(async (id: number) => {
+      const album = albums.find((album) => album.id === id);
 
       if (!album) return undefined;
 
       return album;
     });
 
-    mockRepository.delete.mockImplementation((id: number) => {
-      const index = albums.findIndex((album) => album.albumId === id);
+    mockRepository.delete.mockImplementation(async (id: number) => {
+      const index = albums.findIndex((album) => album.id === id);
       albums.splice(index, 1);
     });
   });
@@ -57,23 +58,23 @@ albums = [
   afterEach(() => {
     albums = [
       {
-        albumId: 1,
-        albumTitle: "teste",
-        albumYear: 2000,
-        artistId: 1,
+        id: 1,
+        title: "teste",
+        year: 2000,
+        artist_id: 1,
       },
       {
-        albumId: 2,
-        albumTitle: "teste2",
-        albumYear: 2000,
-        artistId: 2,
+        id: 2,
+        title: "teste2",
+        year: 2000,
+        artist_id: 2,
       },
     ];
   });
 
-  it("success: deve deletar um album de acordo com o id", () => {
+  it("success: deve deletar um album de acordo com o id", async () => {
     const oldRepo = [...albums];
-    service.delete(1);
+    await service.delete(1);
 
     console.log(`
             deve deletar um album de acordo com o id
@@ -84,17 +85,17 @@ albums = [
     expect(albums.length).toBe(1);
     expect(albums).toEqual([
       {
-        albumId: 2,
-        albumTitle: "teste2",
-        albumYear: 2000,
-        artistId: 2
+        id: 2,
+        title: "teste2",
+        year: 2000,
+        artist_id: 2
       },
     ]);
   });
 
-  it("error case: deve dar erro caso id não seja number", () => {
+  it("error case: deve dar erro caso id não seja number", async () => {
     try {
-      service.delete('1a' as any);
+      await service.delete('1a' as any);
     } catch (err) {
       console.log(
         `deve dar erro caso id não seja number\n
@@ -108,9 +109,9 @@ albums = [
     }
   });
 
-  it("error case: deve dar erro caso album não exista", () => {
+  it("error case: deve dar erro caso album não exista", async () => {
     try {
-      service.delete(3);
+      await service.delete(3);
     } catch (err) {
       console.log(
         `error case: deve dar erro caso album não exista\n

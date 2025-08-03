@@ -10,20 +10,21 @@ class SongAlbumController implements ISongAlbumController {
         this.songAlbumService = songAlbumService
     }
 
-    create(req: Request, res: Response, next: NextFunction): void {
+    async create(req: Request, res: Response, next: NextFunction) {
         try{
             const {albumId, songId} = req.body
-            this.songAlbumService.create({albumId: Number(albumId), songId: Number(songId)})
+            await this.songAlbumService.create({album_id: Number(albumId), song_id: Number(songId)})
             res.status(201).json({message: "relação criada com sucesso"})
         } catch(err) {
             console.log(err);
             next(err); 
         }
     }
-    delete(req: Request, res: Response, next: NextFunction): void {
+
+    async delete(req: Request, res: Response, next: NextFunction) {
          try{
-            const {albumId, songId} = req.body
-            this.songAlbumService.delete(Number(songId), Number(albumId))
+            const {album_id, song_id} = req.body
+            await this.songAlbumService.delete(Number(song_id), Number(album_id))
             res.status(204).send()
         } catch(err) {
             console.log(err);

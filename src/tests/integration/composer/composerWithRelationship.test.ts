@@ -1,4 +1,3 @@
-import Database from "better-sqlite3"
 import { IAlbumRepository, IAlbumService } from "../../../models/album.model"
 import { IArtistRepository, IArtistService } from "../../../models/artist.model"
 import { IClientComposer, IComposerRepository, IComposerService } from "../../../models/composer.model"
@@ -25,19 +24,19 @@ import SongService from "../../../services/song.service"
 import SongAlbumService from "../../../services/songAlbum.service"
 import SongComposerService from "../../../services/songComposer.service"
 import SongWithRelationship from "../../../services/songWithRelationship.service"
-import { DbManager } from "../../../repositories/database/database.utils"
 import { ValidationError } from "../../../errors/validation.error"
+import database from "../../../prismaUtils/client"
+import { execSync } from "child_process"
 
-describe('testes de integração de composer com suas relações',() => {
-    const dbManager = new DbManager()
-    const database: Database.Database = new Database(":memory:")
+
+describe('testes de integração de composer com suas relações',async () => {
     const albumRepository: IAlbumRepository = new AlbumRepository(database)
     const songRepository: ISongRepository = new SongRepository(database)
     const artistRepository: IArtistRepository  = new ArtistRepository(database)
     const composerRepository: IComposerRepository = new ComposerRepository(database)
     const songAlbumRepository: ISongAlbumRepository = new SongAlbumRepository(database)
     const songComposerRepository: ISongComposerRepository = new SongComposerRepository(database)
-    const albumService: IAlbumService = new AlbumService(albumRepository);
+    const albumService: IAlbumService = new AlbumService(albumRepository, database);
     const artistService: IArtistService = new ArtistService(artistRepository);
     const songService: ISongService = new SongService(songRepository);
     const composerService: IComposerService = new ComposerService(composerRepository);
@@ -47,15 +46,14 @@ describe('testes de integração de composer com suas relações',() => {
     const songWithRelationshipService: IGetSongWithRelationshipService = new SongWithRelationship();
     const composerWithRelationshipService: IGetComposerWithRelationshipService = new ComposerWithRelationship();
     const artistWithRelationshipService: IGetArtistWithRelationshipService = new ArtistWithRelationship();
-    const composer1: IClientComposer = {composerName: "teste"}
-    const composer2: IClientComposer = {composerName: "teste 2"}
-    const song1: IClientSong = {songName: "teste", songYear: 2000, songDuration: "00:02:00"}
-     const song2: IClientSong = {songName: "teste 2", songYear: 2000, songDuration: "00:03:00"}
-     const song3: IClientSong = {songName: "teste 3", songYear: 2000, songDuration: "00:04:00"}
-    beforeAll(() => {
-        database.pragma('journal_mode = WAL')
-        database.pragma('foreign_keys = ON')
-        dbManager.createAllTables(database)
+    const composer1: IClientComposer = {name: "teste"}
+    const composer2: IClientComposer = {name: "teste 2"}
+    const song1: IClientSong = {name: "teste", year: 2000, duration: "00:02:00"}
+     const song2: IClientSong = {name: "teste 2", year: 2000, duration: "00:03:00"}
+     const song3: IClientSong = {name: "teste 3", year: 2000, duration: "00:04:00"}
+    beforeAll(async () => {
+          execSync('npx prisma migrate reset --force --skip-seed', { stdio: 'inherit' });
+
 
          albumService.setDependencies(artistService);
 
@@ -69,38 +67,42 @@ describe('testes de integração de composer com suas relações',() => {
 
         composerWithRelationshipService.setDependencies(composerService, songComposerService)
 
-        composerService.create(composer1)
-        composerService.create(composer2)
+        await composerService.create(composer1)
+        await composerService.create(composer2)
 
-       songService.create(song1)
-       songService.create(song2)
-       songService.create(song3)
+       await songService.create(song1)
+       await songService.create(song2)
+       await songService.create(song3)
 
        songComposerService.setDependencies(songService, composerService),
 
-        songComposerService.create({songId: 1, composerId: 1, composition: "letra"})
-        songComposerService.create({songId: 2, composerId: 1, composition: "letra"})
-        songComposerService.create({songId: 3, composerId: 2, composition: "letra"})
+        await songComposerService.create({song_id: 1, composer_id: 1, composition: "letra"})
+        await songComposerService.create({song_id: 2, composer_id: 1, composition: "letra"})
+        await songComposerService.create({song_id: 3, composer_id: 2, composition: "letra"})
 
 
     })
 
-    it('success case: busca todos os compositores com suas musicas correspondentes', () => {
+        afterAll(async () => {
+  await database.$disconnect()
+});
+
+    it('success case: busca todos os compositores com suas musicas correspondentes', async () => {
         const expected: IComposerWithSongs[] = [
             {
-                composerId: 1,
+                id: 1,
                 ...composer1,
                 songs: [{song: 1, composition: "letra"}, {song: 2, composition: "letra"}]
             },
 
             {
-                 composerId: 2,
+                 id: 2,
                 ...composer2,
                 songs: [{song: 3, composition: "letra"}]
             }
         ]
         
-        const composers: IComposerWithSongs[] = composerWithRelationshipService.getAll()
+        const composers: IComposerWithSongs[] = await composerWithRelationshipService.getAll()
 
         console.log(`
                     esperado: ${JSON.stringify(expected)}
@@ -113,16 +115,16 @@ describe('testes de integração de composer com suas relações',() => {
     })
 
 
-    it('success case: deve retornar compositor de acordo com seu id', () => {
+    it('success case: deve retornar compositor de acordo com seu id', async () => {
         const expected: IComposerWithSongs = 
             {
-                composerId: 1,
+                id: 1,
                 ...composer1,
                 songs: [{song: 1, composition: "letra"}, {song: 2, composition: "letra"}]
             }
         
         
-        const composer: IComposerWithSongs | undefined = composerWithRelationshipService.getById(1)
+        const composer: IComposerWithSongs | undefined = await composerWithRelationshipService.getById(1)
 
         console.log(`
                     esperado: ${JSON.stringify(expected)}
@@ -133,11 +135,11 @@ describe('testes de integração de composer com suas relações',() => {
 
     })
 
-    it('error case: deve dar erro pois id passado não é um number ', () => {
+    it('error case: deve dar erro pois id passado não é um number ', async () => {
         
         try
         {
-            composerWithRelationshipService.getById('1a' as any)
+            await composerWithRelationshipService.getById('1a' as any)
 
             throw new Error('era para lançar ValidationError mas não lançou')
         } catch(err) {
@@ -154,13 +156,13 @@ describe('testes de integração de composer com suas relações',() => {
 
     })
 
-    it('error case: deve dar undefined não existem compositores com o id 1 no banco ', () => {
-        composerService.delete(1)
-        const songComposer = songComposerService.getByComposerId(1)
+    it('error case: deve dar undefined não existem compositores com o id 1 no banco ', async () => {
+        await composerService.delete(1)
+        const songComposer = await songComposerService.getByComposerId(1)
 
-        const composers = composerWithRelationshipService.getAll()
+        const composers = await composerWithRelationshipService.getAll()
 
-         const composer = composerWithRelationshipService.getById(1)
+         const composer = await composerWithRelationshipService.getById(1)
 
         console.log(`
                     deve retornar undefined
@@ -172,11 +174,11 @@ describe('testes de integração de composer com suas relações',() => {
         expect(songComposer.length).toBe(0)
     })
 
-    it('error case: deve retornar array vazio pois não possuem compositores no banco ', () => {
-        composerService.delete(2)
-        const songComposer = songComposerService.getByComposerId(2)
+    it('error case: deve retornar array vazio pois não possuem compositores no banco ', async () => {
+        await composerService.delete(2)
+        const songComposer = await songComposerService.getByComposerId(2)
 
-         const composers = composerWithRelationshipService.getAll()
+         const composers = await composerWithRelationshipService.getAll()
 
         console.log(`
                     deve retornar array vazio

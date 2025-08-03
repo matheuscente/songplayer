@@ -11,10 +11,10 @@ import {
   albumUpdateSchemaValidate,
 } from "../models/album.model";
 import { IArtistService } from "../models/artist.model";
-import { idSchemaValidate } from "../models/global.model";
+import { idSchemaValidate, PrismaTransactionClient } from "../models/global.model";
 import databaseErrorTranslator from "../utils/dataBaseErrorTransaltor";
 import DataValidator from "../utils/dataValidator.utils";
-import { runInTransaction } from "../utils/runInTransaction.utils";
+import runInTransaction from "../utils/runInTransactionB.utils";
 
 class AlbumService implements IAlbumService {
   private readonly albumRepository: IAlbumRepository;
@@ -28,16 +28,17 @@ class AlbumService implements IAlbumService {
   ) {
     this.artistService = artistService;
   }
-  async getByArtistId(artistId: number): Promise<IDatabaseAlbum[]> {
+
+  async getByArtistId(artistId: number, tx?: PrismaTransactionClient): Promise<IDatabaseAlbum[]> {
     DataValidator.validator(idSchemaValidate, {id: artistId})
-    return this.albumRepository.getByArtistId(artistId)
+    return this.albumRepository.getByArtistId(artistId, tx)
   }
-  async getAll(): Promise<IDatabaseAlbum[]> {
-    return this.albumRepository.getAll();
+  async getAll(tx?: PrismaTransactionClient): Promise<IDatabaseAlbum[]> {
+    return this.albumRepository.getAll(tx);
   }
-  async getById(id: number): Promise<IDatabaseAlbum | undefined> {
+  async getById(id: number, tx?: PrismaTransactionClient): Promise<IDatabaseAlbum | undefined> {
     DataValidator.validator(idSchemaValidate, {id})
-    const album = this.albumRepository.getById(id);
+    const album = this.albumRepository.getById(id, tx);
     if (!album) return undefined;
     return album
   }
@@ -47,13 +48,13 @@ class AlbumService implements IAlbumService {
 
     let albumId: number = 0;
     try {
-      runInTransaction(async () => {
-      const artist = await this.artistService.getById(item.artist_id);
+      
+      albumId =  await runInTransaction(async (tx) => {
+        const artist = await this.artistService.getById(item.artist_id);
       if (!artist) throw new NotFoundError("artista não encontrado");
+       return await this.albumRepository.create(item, tx);
+      })
 
-      albumId = await this.albumRepository.create(item);
-
-    });
     }  catch (err) {
 
         if(err instanceof NotFoundError) throw err
@@ -67,7 +68,7 @@ class AlbumService implements IAlbumService {
 
   async update(item: UpdateAlbum): Promise<void> {
     DataValidator.validator(albumUpdateSchemaValidate, item)
-    runInTransaction(async () => {
+    await runInTransaction(async  (tx) => {
       const album = await this.getById(item.id);
       if (album) {
         if (item.artist_id) {
@@ -81,7 +82,7 @@ class AlbumService implements IAlbumService {
           year: item.year ?? album.year,
           artist_id: item.artist_id ?? album.artist_id,
         };
-        await this.albumRepository.update(updateAlbum);
+        await this.albumRepository.update(updateAlbum, tx);
       } else {
         throw new NotFoundError("album não encontrado");
       }
@@ -89,10 +90,10 @@ class AlbumService implements IAlbumService {
   }
   async delete(id : number): Promise<void> {
     DataValidator.validator(idSchemaValidate, {id})
-    runInTransaction(async () => {
+    await runInTransaction(async  (tx) => {
       const album = await this.getById(id);
       if (!album) throw new NotFoundError("album não encontrado");
-      await this.albumRepository.delete(id);
+      await this.albumRepository.delete(id, tx);
     });
   }
 }

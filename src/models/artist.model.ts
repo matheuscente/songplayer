@@ -1,5 +1,5 @@
 import { Joi } from "celebrate";
-import { ICrud, ICrudController } from "./global.model"
+import { ICrud, ICrudController, ICrudRepository } from "./global.model"
 import { IAlbumService } from "./album.model";
 
 export interface IClientArtist {
@@ -16,7 +16,7 @@ export type UpdateArtist = Partial<IClientArtist> & Pick<IDatabaseArtist, 'id'>
 
 
 //interface de artista repository
-export interface IArtistRepository extends ICrud<IClientArtist, IDatabaseArtist, UpdateArtist> {}
+export interface IArtistRepository extends ICrudRepository<IClientArtist, IDatabaseArtist, UpdateArtist> {}
 
 //interface de controller
 export interface IArtistController extends ICrudController {}
@@ -36,9 +36,9 @@ export const artistSchemaValidate = Joi.object().keys({
  .options({ abortEarly: false });;
 
 export const artistUpdateSchemaValidate = artistSchemaValidate.fork(
-  ['artistName', 'artistNationality'],
+  ['name', 'nationality'],
   (schema) => schema.optional()
 ).keys({
  id: Joi.number().min(1).required()
-}).or('artistName', 'artistNationality')
+}).or('name', 'nationality')
  .options({ abortEarly: false });

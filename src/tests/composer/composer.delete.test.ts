@@ -10,12 +10,12 @@ describe("testes unitários do método delete do service de composer", () => {
   beforeEach(() => {
     composers = [
       {
-        composerId: 1,
-        composerName: "teste"
+        id: 1,
+        name: "teste"
       },
       {
-        composerId: 2,
-        composerName: "teste2"
+        id: 2,
+        name: "teste2"
       },
     ];
 
@@ -34,36 +34,36 @@ describe("testes unitários do método delete do service de composer", () => {
     service = new ComposerService(mockRepository);
 
     //comportamento do mock repository
-    mockRepository.getById.mockImplementation((id: number) => {
-      const composer = composers.find((composer) => composer.composerId === id);
+    mockRepository.getById.mockImplementation(async (id: number) => {
+      const composer = composers.find((composer) => composer.id === id);
 
       if (!composer) return undefined;
 
       return composer;
     });
 
-    mockRepository.delete.mockImplementation((id: number) => {
-      const index = composers.findIndex((composer) => composer.composerId === id);
+    mockRepository.delete.mockImplementation(async (id: number) => {
+      const index = composers.findIndex((composer) => composer.id === id);
       composers.splice(index, 1);
     });
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     composers = [
       {
-        composerId: 1,
-        composerName: "teste"
+        id: 1,
+        name: "teste"
       },
       {
-        composerId: 2,
-        composerName: "teste2"
+        id: 2,
+        name: "teste2"
       },
     ];
   });
 
-  it("success: deve deletar um composer de acordo com o id", () => {
+  it("success: deve deletar um composer de acordo com o id", async () => {
     const oldRepo = [...composers];
-    service.delete(1);
+    await service.delete(1);
 
     console.log(`
             deve deletar um composer de acordo com o id
@@ -75,15 +75,15 @@ describe("testes unitários do método delete do service de composer", () => {
     expect(composers.length).toBe(1);
     expect(composers).toEqual([
       {
-        composerId: 2,
-        composerName: "teste2"
+        id: 2,
+        name: "teste2"
       },
     ]);
   });
 
-  it("error case: deve dar erro caso id não seja number", () => {
+  it("error case: deve dar erro caso id não seja number", async () => {
     try {
-      service.delete('1a' as any);
+      await service.delete('1a' as any);
     } catch (err) {
       console.log(
         `deve dar erro caso id não seja number\n
@@ -97,9 +97,9 @@ describe("testes unitários do método delete do service de composer", () => {
     }
   });
 
-  it("error case: deve dar erro caso composer não exista", () => {
+  it("error case: deve dar erro caso composer não exista", async () => {
     try {
-      service.delete(3);
+      await service.delete(3);
     } catch (err) {
       console.log(
         `error case: deve dar erro caso composer não exista\n

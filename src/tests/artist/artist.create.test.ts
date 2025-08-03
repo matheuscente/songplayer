@@ -9,22 +9,22 @@ describe('testes unitários do método create do service de artist', () => {
     let artists: IDatabaseArtist[]
     let artist: IClientArtist
 
-    beforeAll(() => {
+    beforeAll( () => {
         artist = {
-            artistName: 'teste3',
-            artistNationality: 'teste3'
+            name: 'teste3',
+            nationality: 'teste3'
         }
 
         artists = [
             {
-            artistId: 1,
-            artistName: 'teste',
-            artistNationality: 'teste'
+            id: 1,
+            name: 'teste',
+            nationality: 'teste'
         },
         {
-            artistId: 2,
-            artistName: 'teste2',
-            artistNationality: 'teste2'
+            id: 2,
+            name: 'teste2',
+            nationality: 'teste2'
         }
     ];
 
@@ -38,13 +38,13 @@ describe('testes unitários do método create do service de artist', () => {
         }
 
         //comportamento do mock
-        mockRepository.create.mockImplementation((item: IClientArtist) => {
+        mockRepository.create.mockImplementation(async (item: IClientArtist) => {
             const newItem: IDatabaseArtist = {
-                artistId: 3,
+                id: 3,
                 ...item
             }
             artists.push(newItem)
-            return newItem.artistId
+            return newItem.id
         })
 
 
@@ -52,8 +52,8 @@ describe('testes unitários do método create do service de artist', () => {
         service = new ArtistService(mockRepository)
     })
 
-    it('success case: deve criar um artista e receber o indice do artista criado', () => {
-        const data = service.create(artist)
+    it('success case: deve criar um artista e receber o indice do artista criado', async () => {
+        const data = await service.create(artist)
         console.log(
             `deve criar um artista e receber o indice do artista criado\n
             dados passados para criação: ${JSON.stringify(artist)}
@@ -62,12 +62,12 @@ describe('testes unitários do método create do service de artist', () => {
             
         )
         expect(data).toBe(3)
-        expect({artistId: 3, ...artist}).toEqual(artists[2])
+        expect({id: 3, ...artist}).toEqual(artists[2])
     })
 
-    it('error case: deve dar erro por receber um artista sem nome', () => {
+    it('error case: deve dar erro por receber um artista sem nome', async () => {
         try {
-            service.create({artistNationality: 'teste'} as any)
+            await service.create({nationality: 'teste'} as any)
              throw new Error('Era esperado que lançasse ValidationError, mas não lançou');
         } catch(err) {
             console.log(
@@ -78,15 +78,15 @@ describe('testes unitários do método create do service de artist', () => {
             
         )
         expect(err).toBeInstanceOf(ValidationError)
-        expect((err as Error).message).toEqual('"artistName" is required')
+        expect((err as Error).message).toEqual('"name" is required')
         
         }
         
     })
 
-    it('error case: deve dar erro por receber um artista sem nacionalidade', () => {
+    it('error case: deve dar erro por receber um artista sem nacionalidade', async () => {
         try {
-            service.create({artistName: 'teste'} as any)
+            await service.create({name: 'teste'} as any)
         } catch(err) {
             console.log(
             `
@@ -96,15 +96,15 @@ describe('testes unitários do método create do service de artist', () => {
             
         )
         expect(err).toBeInstanceOf(ValidationError)
-        expect((err as Error).message).toEqual('"artistNationality" is required')
+        expect((err as Error).message).toEqual('"nationality" is required')
         
         }
         
     })
 
-    it('error case: deve dar erro por receber um artista sem propriedades', () => {
+    it('error case: deve dar erro por receber um artista sem propriedades', async () => {
         try {
-            service.create({} as any)
+            await service.create({} as any)
              throw new Error('Era esperado que lançasse ValidationError, mas não lançou');
         } catch(err) {
             console.log(
@@ -115,14 +115,14 @@ describe('testes unitários do método create do service de artist', () => {
             
         )
         expect(err).toBeInstanceOf(ValidationError)
-        expect((err as Error).message).toEqual('"artistName" is required, "artistNationality" is required')
+        expect((err as Error).message).toEqual('"name" is required, "nationality" is required')
         }
         
     })
 
-    it('error case: deve dar erro por receber um artista com propriedade inválida', () => {
+    it('error case: deve dar erro por receber um artista com propriedade inválida', async () => {
         try {
-            service.create({...artist, invalidField: 'true!'} as any)
+            await service.create({...artist, invalidField: 'true!'} as any)
              throw new Error('Era esperado que lançasse ValidationError, mas não lançou');
         } catch(err) {
             console.log(
@@ -138,9 +138,9 @@ describe('testes unitários do método create do service de artist', () => {
         
     })
 
-    it('error case: deve dar erro por receber um artista com nome como number', () => {
+    it('error case: deve dar erro por receber um artista com nome como number', async () => {
         try {
-            service.create({artistName: 2, artistNationality: 'teste3'} as any)
+            await service.create({name: 2, nationality: 'teste3'} as any)
              throw new Error('Era esperado que lançasse ValidationError, mas não lançou');
         } catch(err) {
             console.log(
@@ -151,14 +151,14 @@ describe('testes unitários do método create do service de artist', () => {
             
         )
         expect(err).toBeInstanceOf(ValidationError)
-        expect((err as Error).message).toEqual('"artistName" must be a string')
+        expect((err as Error).message).toEqual('"name" must be a string')
         }
         
     })
 
-    it('error case: deve dar erro por receber um artista com nacionalidade como number', () => {
+    it('error case: deve dar erro por receber um artista com nacionalidade como number', async () => {
         try {
-            service.create({artistName: 'teste3', artistNationality: 1} as any)
+            await service.create({name: 'teste3', nationality: 1} as any)
              throw new Error('Era esperado que lançasse ValidationError, mas não lançou');
         } catch(err) {
             console.log(
@@ -169,7 +169,7 @@ describe('testes unitários do método create do service de artist', () => {
             
         )
         expect(err).toBeInstanceOf(ValidationError)
-        expect((err as Error).message).toEqual('"artistNationality" must be a string')
+        expect((err as Error).message).toEqual('"nationality" must be a string')
         }
         
     })

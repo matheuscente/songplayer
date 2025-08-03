@@ -17,46 +17,42 @@ class ComposerService implements IComposerService {
   constructor(composerRepository: IComposerRepository) {
     this.composerRepository = composerRepository;
   }
-  getAll(): IDatabaseComposer[] {
+  async getAll(): Promise<IDatabaseComposer[]> {
     return this.composerRepository.getAll();
 
   }
-  getById(id: number): IDatabaseComposer | undefined {
+  async getById(id: number): Promise<IDatabaseComposer | undefined> {
     DataValidator.validator(idSchemaValidate, {id})
-    const composer = this.composerRepository.getById(id);
-    if (!composer) {
-      return undefined;
-    }
-    return composer;
+    return this.composerRepository.getById(id);
   }
-  create(item: IClientComposer): number {
+  async create(item: IClientComposer): Promise<number> {
     DataValidator.validator(composerSchemaValidate, item)
     let composerId: number = 0
-    runInTransaction(() => {
-      composerId = this.composerRepository.create(item);
+    await runInTransaction(async  () => {
+      composerId = await this.composerRepository.create(item);
     });
     return composerId
   }
 
-  update(item: UpdateComposer): void {
+  async update(item: UpdateComposer): Promise<void> {
     DataValidator.validator(composerUpdateSchemaValidate, item)
-    runInTransaction(() => {
-      const composer = this.getById(item.composerId)
+    await runInTransaction(async  () => {
+      const composer = await this.getById(item.id)
       if(!composer) throw new NotFoundError('compositor não encontrado')
-      this.composerRepository.update(
+      await this.composerRepository.update(
     {
-      composerId: composer.composerId,
-      composerName: item.composerName
+      id: composer.id,
+      name: item.name
     }
   );
     });
   }
-  delete(id: number): void {
+  async delete(id: number): Promise<void> {
     DataValidator.validator(idSchemaValidate,{id})
-    runInTransaction(() => {
-      const composer = this.getById(id)
+    await runInTransaction(async  () => {
+      const composer = await this.getById(id)
       if(!composer) throw new NotFoundError('compositor não encontrado')
-      this.composerRepository.delete(id);
+      await this.composerRepository.delete(id);
     });
   }
 }

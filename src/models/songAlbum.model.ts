@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express"
 import { IAlbumService, IDatabaseAlbum } from "./album.model"
 import { IDatabaseSong, ISongService } from "./song.model"
 import { Joi } from "celebrate"
+import { PrismaTransactionClient } from "./global.model"
 
 //interface da entidade sem id
 export interface ISongAlbum {
@@ -21,11 +22,11 @@ export type AlbumAndSongReturns = IDatabaseAlbum & IDatabaseSong
 //interface de service
 export interface ISongAlbumService{
     setDependencies(songService: ISongService, albumService: IAlbumService): void,
-    create(songAlbum: ISongAlbum): void,
-    delete(songId: number, albumId: number): void,
-    getById(songId: number, albumId: number):  ISongAlbum | undefined,
-    getByAlbumId(albumId: number): ISongAlbum[],
-    getBySongId(songId: number):  ISongAlbum[]
+    create(songAlbum: ISongAlbum): Promise<void>,
+    delete(songId: number, albumId: number): Promise<void>,
+    getById(songId: number, albumId: number):  Promise<ISongAlbum | undefined>,
+    getByAlbumId(albumId: number): Promise<ISongAlbum[]>,
+    getBySongId(songId: number):  Promise<ISongAlbum[]>
 }
 
 //interface de controller
@@ -36,8 +37,8 @@ export interface ISongAlbumController {
 
 //interface de repository
 export interface ISongAlbumRepository {
-    create(songAlbum: ISongAlbum): Promise<void>,
-    delete(songId: number, albumId: number): Promise<void>,
+    create(songAlbum: ISongAlbum, tx: PrismaTransactionClient): Promise<void>,
+    delete(songId: number, albumId: number, tx: PrismaTransactionClient): Promise<void>,
     getById(songId: number, albumId: number):  Promise<ISongAlbum | undefined>,
     getByAlbumId(albumId: number): Promise<ISongAlbum[]>,
     getBySongId(songId: number):  Promise<ISongAlbum[]>

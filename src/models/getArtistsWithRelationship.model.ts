@@ -12,8 +12,8 @@ export interface IGetArtistWithRelationshipService {
         artistService: IArtistService,
         albumService: IAlbumService,
     ): void
-    getAll(): IArtistWithAlbums[]
-    getById(composerId: number): IArtistWithAlbums | undefined
+    getAll(): Promise<IArtistWithAlbums[]>
+    getById(composerId: number): Promise<IArtistWithAlbums | undefined>
 }
 
 export interface IGetArtistWithRelationshipController {

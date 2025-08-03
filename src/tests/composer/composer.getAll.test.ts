@@ -10,12 +10,12 @@ describe('testes unitários do método getAll do service de composer', () => {
     beforeAll(() => {
         composers = [
             {
-            composerId: 1,
-            composerName: 'teste'
+            id: 1,
+            name: 'teste'
         },
         {
-            composerId: 2,
-            composerName: 'teste2'
+            id: 2,
+            name: 'teste2'
         }
     ];
 
@@ -33,9 +33,9 @@ describe('testes unitários do método getAll do service de composer', () => {
         service = new ComposerService(mockRepository)
     })
 
-    it('success case: deve retornar o todos os Composeras', () => {
-        mockRepository.getAll.mockReturnValue(composers)
-        const data = service.getAll()
+    it('success case: deve retornar o todos os Composeras', async () => {
+        mockRepository.getAll.mockResolvedValue(composers)
+        const data = await service.getAll()
         console.log(
             `deve retornar todos os Composeras\n
             dados repository: ${JSON.stringify(composers)}\n
@@ -46,9 +46,9 @@ describe('testes unitários do método getAll do service de composer', () => {
         expect(data).toEqual(composers)
     })
 
-    it('success case: deve retornar array vazio pois nao existe item no banco', () => {
-        mockRepository.getAll.mockReturnValue([])
-        const data = service.getAll()
+    it('success case: deve retornar array vazio pois nao existe item no banco', async () => {
+        mockRepository.getAll.mockResolvedValue([])
+        const data = await service.getAll()
         console.log(
             `
             deve retornar array vazio pois nao existe item no banco\n

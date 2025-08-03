@@ -11,17 +11,17 @@ describe('testes unitários do método create do service de composer', () => {
 
     beforeAll(() => {
         composer = {
-            composerName: 'teste3'
+            name: 'teste3'
         }
 
         composers = [
             {
-            composerId: 1,
-            composerName: 'teste'
+            id: 1,
+            name: 'teste'
         },
         {
-            composerId: 2,
-            composerName: 'teste2'
+            id: 2,
+            name: 'teste2'
         }
     ];
 
@@ -35,13 +35,13 @@ describe('testes unitários do método create do service de composer', () => {
         }
 
         //comportamento do mock
-        mockRepository.create.mockImplementation((item: IClientComposer) => {
+        mockRepository.create.mockImplementation(async (item: IClientComposer) => {
             const newItem: IDatabaseComposer = {
-                composerId: 3,
+                id: 3,
                 ...item
             }
             composers.push(newItem)
-            return newItem.composerId
+            return newItem.id
         })
 
 
@@ -49,8 +49,8 @@ describe('testes unitários do método create do service de composer', () => {
         service = new ComposerService(mockRepository)
     })
 
-    it('success case: deve criar um composer e receber o indice do composer criado', () => {
-        const data = service.create(composer)
+    it('success case: deve criar um composer e receber o indice do composer criado', async () => {
+        const data = await service.create(composer)
         console.log(
             `deve criar um composer e receber o indice do composer criado\n
             dados passados para criação: ${JSON.stringify(composer)}
@@ -59,12 +59,12 @@ describe('testes unitários do método create do service de composer', () => {
             
         )
         expect(data).toBe(3)
-        expect({composerId: 3, ...composer}).toEqual(composers[2])
+        expect({id: 3, ...composer}).toEqual(composers[2])
     })
 
-    it('error case: deve dar erro por receber um composer sem propriedades', () => {
+    it('error case: deve dar erro por receber um composer sem propriedades', async () => {
         try {
-            service.create({} as any)
+            await service.create({} as any)
              throw new Error('Era esperado que lançasse ValidationError, mas não lançou');
         } catch(err) {
             console.log(
@@ -75,14 +75,14 @@ describe('testes unitários do método create do service de composer', () => {
             
         )
         expect(err).toBeInstanceOf(ValidationError)
-        expect((err as Error).message).toEqual('"composerName" is required')
+        expect((err as Error).message).toEqual('"name" is required')
         }
         
     })
 
-    it('error case: deve dar erro por receber um composer com propriedade inválida', () => {
+    it('error case: deve dar erro por receber um composer com propriedade inválida', async () => {
         try {
-            service.create({...composer, invalidField: 'true!'} as any)
+            await service.create({...composer, invalidField: 'true!'} as any)
              throw new Error('Era esperado que lançasse ValidationError, mas não lançou');
         } catch(err) {
             console.log(
@@ -98,9 +98,9 @@ describe('testes unitários do método create do service de composer', () => {
         
     })
 
-    it('error case: deve dar erro por receber um composer com nome como number', () => {
+    it('error case: deve dar erro por receber um composer com nome como number', async () => {
         try {
-            service.create({composerName: 2} as any)
+            await service.create({name: 2} as any)
              throw new Error('Era esperado que lançasse ValidationError, mas não lançou');
         } catch(err) {
             console.log(
@@ -111,7 +111,7 @@ describe('testes unitários do método create do service de composer', () => {
             
         )
         expect(err).toBeInstanceOf(ValidationError)
-        expect((err as Error).message).toEqual('"composerName" must be a string')
+        expect((err as Error).message).toEqual('"name" must be a string')
         }
         
     })

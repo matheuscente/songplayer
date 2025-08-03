@@ -44,42 +44,42 @@ describe("testes unitários do método getByAlbumId do service de songAlbum", ()
   beforeEach(() => {
        songAlbumDB = [
     {
-        songId: 1,
-        albumId: 1
+        song_id: 1,
+        album_id: 1
   },
   {
-    songId: 1,
-    albumId: 2
+    song_id: 1,
+    album_id: 2
   },
 
   {
-    songId: 2,
-    albumId: 2
+    song_id: 2,
+    album_id: 2
   }
 ]
     //comportamento do mock
-    mockRepository.getByAlbumId.mockImplementation((albumId) => {
+    mockRepository.getByAlbumId.mockImplementation(async (albumId) => {
       return songAlbumDB.filter(item => 
-        item.albumId === albumId
+        item.album_id === albumId
       ) 
     });
   });
 
-  it("success case: deve retornar a relação de acordo com o albumId: 2", () => {
+  it("success case: deve retornar a relação de acordo com o albumId: 2", async () => {
 
     const expected: ISongAlbum[] = [
         {
-    songId: 1,
-    albumId: 2
+    song_id: 1,
+    album_id: 2
   },
 
   {
-    songId: 2,
-    albumId: 2
+    song_id: 2,
+    album_id: 2
   }
 ]
 
-    const relations = service.getByAlbumId(2);
+    const relations = await service.getByAlbumId(2);
     console.log(
       `deve retornar a relação de acordo com o albumId: 2\n
             dados que devem ser retornados: ${JSON.stringify(expected)}
@@ -89,10 +89,10 @@ describe("testes unitários do método getByAlbumId do service de songAlbum", ()
     expect(expected).toEqual(relations);
   });
 
-   it("error case: deve dar erro pois o id passado não é um número", () => {
+   it("error case: deve dar erro pois o id passado não é um número", async () => {
     try {
 
-      service.getByAlbumId('1a' as unknown as number);
+      await service.getByAlbumId('1a' as unknown as number);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -111,9 +111,9 @@ describe("testes unitários do método getByAlbumId do service de songAlbum", ()
     }
   });
 
-  it("error case: deve retornar array vazio pois a relação não existe", () => {
+  it("error case: deve retornar array vazio pois a relação não existe", async () => {
 
-      const data = service.getByAlbumId(3);
+      const data = await service.getByAlbumId(3);
       console.log(
         `deve retornar array vazio pois a relação não existe\n
             dados retornados: ${data}

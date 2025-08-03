@@ -42,28 +42,28 @@ describe("testes unitários do método getById do service de songComposer", () =
   beforeEach(() => {
        songComposerDB = [
     {
-        songId: 1,
-        composerId: 1,
+        song_id: 1,
+        composer_id: 1,
         composition: 'letra'
   },
   {
-    songId: 1,
-    composerId: 2,
+    song_id: 1,
+    composer_id: 2,
     composition: 'letra'
   }
 ]
     //comportamento do mock
-    mockRepository.getById.mockImplementation((songId, ComposerId) => {
+    mockRepository.getById.mockImplementation(async (songId, ComposerId) => {
       return songComposerDB.find(item => 
-        item.composerId === ComposerId && item.songId === songId
+        item.composer_id === ComposerId && item.song_id === songId
       ) 
     });
   });
 
-  it("success case: deve retornar a relação de acordo com o songId e composerId", () => {
+  it("success case: deve retornar a relação de acordo com o songId e composerId", async () => {
 
-    const songComposer: ISongComposer = { songId: 1, composerId: 1, composition: 'letra'};
-    const relation = service.getById(songComposer.songId, songComposer.composerId);
+    const songComposer: ISongComposer = { song_id: 1, composer_id: 1, composition: 'letra'};
+    const relation = await service.getById(songComposer.song_id, songComposer.composer_id);
     console.log(
       `deve retornar a relação de acordo com o songId e composerId\n
             dados passados para busca: ${JSON.stringify(songComposer)}
@@ -74,15 +74,15 @@ describe("testes unitários do método getById do service de songComposer", () =
     expect(songComposerDB[0]).toEqual(relation);
   });
 
-   it("error case: deve dar erro pois o id de composer não é um número", () => {
+   it("error case: deve dar erro pois o id de composer não é um número", async () => {
     try {
       const songComposer: ISongComposer = {
-        songId: 1,
-        composerId: "a1" as unknown as number,
+        song_id: 1,
+        composer_id: "a1" as unknown as number,
         composition: 'letra'
       };
 
-      service.getById(songComposer.songId, songComposer.composerId);
+      await service.getById(songComposer.song_id, songComposer.composer_id);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -96,20 +96,20 @@ describe("testes unitários do método getById do service de songComposer", () =
 
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as ValidationError).message).toBe(
-        '"composerId" must be a number'
+        '"composer_id" must be a number'
       );
     }
   });
 
-  it("error case: deve dar erro pois o id de song não é um número", () => {
+  it("error case: deve dar erro pois o id de song não é um número", async () => {
     try {
       const songComposer: ISongComposer = {
-        songId: "a1" as unknown as number,
-        composerId: 1,
+        song_id: "a1" as unknown as number,
+        composer_id: 1,
         composition: 'letra'
       };
 
-      service.getById(songComposer.songId, songComposer.composerId);
+      await service.getById(songComposer.song_id, songComposer.composer_id);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -123,21 +123,21 @@ describe("testes unitários do método getById do service de songComposer", () =
 
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as ValidationError).message).toBe(
-        '"songId" must be a number'
+        '"song_id" must be a number'
       );
     }
   });
 
-  it("error case: deve retornar undefined pois a relação não existe", () => {
+  it("error case: deve retornar undefined pois a relação não existe", async () => {
 
     songComposerDB.splice(0,1)
       const songComposer: ISongComposer = {
-        songId: 1,
-        composerId: 1,
+        song_id: 1,
+        composer_id: 1,
         composition: 'letra'
       };
 
-      const data = service.getById(songComposer.songId, songComposer.composerId);
+      const data = await service.getById(songComposer.song_id, songComposer.composer_id);
       console.log(
         `deve retornar undefined pois a relação não existe\n
             dados retornados: ${data}
@@ -148,13 +148,13 @@ describe("testes unitários do método getById do service de songComposer", () =
 
   });
 
-  it("error case: deve dar erro pois o song id nao foi passado", () => {
+  it("error case: deve dar erro pois o song id nao foi passado", async () => {
     try {
       const songComposer: any = {
         ComposerId: 1,
       };
 
-      service.getById(songComposer.songId, songComposer.ComposerId);
+      await service.getById(songComposer.songId, songComposer.ComposerId);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -168,18 +168,18 @@ describe("testes unitários do método getById do service de songComposer", () =
 
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as ValidationError).message).toBe(
-        '"songId" is required'
+        '"song_id" is required'
       );
     }
   });
 
-    it("error case: deve dar erro pois o composer id nao foi passado", () => {
+    it("error case: deve dar erro pois o composer id nao foi passado", async () => {
     try {
       const songComposer: any = {
         songId: 1,
       };
 
-      service.getById(songComposer.songId, songComposer.ComposerId);
+      await service.getById(songComposer.songId, songComposer.ComposerId);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -193,7 +193,7 @@ describe("testes unitários do método getById do service de songComposer", () =
 
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as ValidationError).message).toBe(
-        '"composerId" is required'
+        '"composer_id" is required'
       );
     }
   });

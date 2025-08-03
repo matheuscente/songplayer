@@ -8,7 +8,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "node ./lib/server.js",
-    "test": "jest"
+    "test": "jest --runInBand --detectOpenHandles"
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.10",

@@ -17,23 +17,23 @@ describe("testes unitários do método create do service de song", () => {
 
   beforeEach(() => {
     song = {
-            songName: 'teste3',
-            songYear: 2000,
-            songDuration: "00:03:00"
+            name: 'teste3',
+            year: 2000,
+            duration: "00:03:00"
     };
 
     songs = [
             {
-            songId: 1,
-            songName: 'teste',
-            songYear: 2000,
-            songDuration: 15000
+            id: 1,
+            name: 'teste',
+            year: 2000,
+            duration: 15000
         },
         {
-            songId: 2,
-            songName: 'teste2',
-            songYear: 2000,
-            songDuration: 20000
+            id: 2,
+            name: 'teste2',
+            year: 2000,
+            duration: 20000
         }
     ];
 
@@ -47,38 +47,38 @@ describe("testes unitários do método create do service de song", () => {
     };
 
     //comportamento do mock
-    mockRepository.create.mockImplementation((item: IClientSong) => {
+    mockRepository.create.mockImplementation(async (item: IClientSong) => {
       const newItem: IDatabaseSong = {
-        songId: 3,
+        id: 3,
         ...item,
       };
       songs.push(newItem);
-      return newItem.songId;
+      return newItem.id;
     });
 
     //instância de service com repositório mockado
     service = new SongService(mockRepository);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     songs = [
             {
-            songId: 1,
-            songName: 'teste',
-            songYear: 2000,
-            songDuration: "00:02:00"
+            id: 1,
+            name: 'teste',
+            year: 2000,
+            duration: "00:02:00"
         },
         {
-            songId: 2,
-            songName: 'teste2',
-            songYear: 2000,
-            songDuration: "00:02:00"
+            id: 2,
+            name: 'teste2',
+            year: 2000,
+            duration: "00:02:00"
         }
     ];
   })
 
-  it("success case: deve criar um song e receber o indice do song criado", () => {
-    const data = service.create(song);
+  it("success case: deve criar um song e receber o indice do song criado", async () => {
+    const data = await service.create(song);
     const songInBd: IDatabaseSong = {...songs[2]}
     console.log(
       `deve criar um song e receber o indice do song criado: 3\n
@@ -88,16 +88,16 @@ describe("testes unitários do método create do service de song", () => {
             `
     );
     expect(data).toBe(3);
-    expect({ songId: 3, songName: song.songName, songYear: song.songYear, songDuration: TimeConverter.timeToMilliseconds((song.songDuration as string))}).toEqual(songInBd);
+    expect({ id: 3, name: song.name, year: song.year, duration: TimeConverter.timeToMilliseconds((song.duration as string))}).toEqual(songInBd);
   });
 
-  it("error case: deve dar erro por receber um song sem nome", () => {
+  it("error case: deve dar erro por receber um song sem nome", async () => {
     try {
       const songWithOutTitle = {
-        songYear: 2000,
-        songDuration: "00:03:20"
+        year: 2000,
+        duration: "00:03:20"
       };
-      service.create(songWithOutTitle as any);
+      await service.create(songWithOutTitle as any);
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
       );
@@ -109,17 +109,17 @@ describe("testes unitários do método create do service de song", () => {
             `
       );
       expect(err).toBeInstanceOf(ValidationError);
-      expect((err as Error).message).toEqual('"songName" is required');
+      expect((err as Error).message).toEqual('"name" is required');
     }
   });
 
-  it("error case: deve dar erro por receber um song sem ano", () => {
+  it("error case: deve dar erro por receber um song sem ano", async () => {
     try {
       const songWithOutTitle = {
-        songName: "teste",
-        songDuration: "00:03:20"
+        name: "teste",
+        duration: "00:03:20"
       };
-      service.create(songWithOutTitle as any);
+      await service.create(songWithOutTitle as any);
     } catch (err) {
       console.log(
         `
@@ -128,13 +128,13 @@ describe("testes unitários do método create do service de song", () => {
             `
       );
       expect(err).toBeInstanceOf(ValidationError);
-      expect((err as Error).message).toEqual('"songYear" is required');
+      expect((err as Error).message).toEqual('"year" is required');
     }
   });
 
-  it("error case: deve dar erro por receber um song sem propriedades", () => {
+  it("error case: deve dar erro por receber um song sem propriedades", async () => {
     try {
-      service.create({} as any);
+      await service.create({} as any);
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
       );
@@ -147,14 +147,14 @@ describe("testes unitários do método create do service de song", () => {
       );
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as Error).message).toEqual(
-        '"songName" is required, "songYear" is required, "songDuration" is required'
+        '"name" is required, "year" is required, "duration" is required'
       );
     }
   });
 
-  it("error case: deve dar erro por receber um song com propriedade inválida", () => {
+  it("error case: deve dar erro por receber um song com propriedade inválida", async () => {
     try {
-      service.create({ ...song, invalidField: "true!" } as any);
+      await service.create({ ...song, invalidField: "true!" } as any);
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
       );
@@ -170,10 +170,10 @@ describe("testes unitários do método create do service de song", () => {
     }
   });
 
-  it("error case: deve dar erro por receber um song com nome como number", () => {
+  it("error case: deve dar erro por receber um song com nome como number", async () => {
     try {
-      service.create({songName: 1, songYear: 2000,
-            songDuration: "00:03:20"} as any);
+      await service.create({name: 1, year: 2000,
+            duration: "00:03:20"} as any);
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
       );
@@ -185,16 +185,16 @@ describe("testes unitários do método create do service de song", () => {
             `
       );
       expect(err).toBeInstanceOf(ValidationError);
-      expect((err as Error).message).toEqual('"songName" must be a string');
+      expect((err as Error).message).toEqual('"name" must be a string');
     }
   });
 
-  it("error case: deve dar erro por receber um song com ano como string", () => {
+  it("error case: deve dar erro por receber um song com ano como string", async () => {
     try {
-      service.create({
-        songName: "teste3",
-        songYear: "2000a",
-        songDuration: "00:03:20",
+      await service.create({
+        name: "teste3",
+        year: "2000a",
+        duration: "00:03:20",
       } as any);
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
@@ -207,16 +207,16 @@ describe("testes unitários do método create do service de song", () => {
             `
       );
       expect(err).toBeInstanceOf(ValidationError);
-      expect((err as Error).message).toEqual('"songYear" must be a number');
+      expect((err as Error).message).toEqual('"year" must be a number');
     }
   });
 
-  it("error case: deve dar erro por receber um song com duração inválida", () => {
+  it("error case: deve dar erro por receber um song com duração inválida", async () => {
     try {
-      service.create({
-        songName: "teste3",
-        songYear: 2000,
-        songDuration: "invalid"
+      await service.create({
+        name: "teste3",
+        year: 2000,
+        duration: "invalid"
       } as any);
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
@@ -233,12 +233,12 @@ describe("testes unitários do método create do service de song", () => {
     }
   });
 
-  it("error case: deve dar erro por receber ano maior que ano atual", () => {
+  it("error case: deve dar erro por receber ano maior que ano atual", async () => {
     try {
-      service.create({
-        songName: "teste3",
-        songYear: 2026,
-        songDuration: "00:03:20"
+      await service.create({
+        name: "teste3",
+        year: 2026,
+        duration: "00:03:20"
       } as any);
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
@@ -251,7 +251,7 @@ describe("testes unitários do método create do service de song", () => {
             `
       );
       expect(err).toBeInstanceOf(ValidationError);
-      expect((err as Error).message).toEqual('"songYear" must be less than or equal to 2025');
+      expect((err as Error).message).toEqual('"year" must be less than or equal to 2025');
     }
   });
 });

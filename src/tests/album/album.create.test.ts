@@ -1,4 +1,5 @@
 import AlbumService from "../../services/album.service";
+import database from "../../prismaUtils/client"
 import {
   IAlbumRepository,
   IClientAlbum,
@@ -25,23 +26,23 @@ describe("testes unitários do método create do service de album", () => {
 
   beforeEach(() => {
     album = {
-      albumTitle: "teste3",
-      albumYear: 2000,
-      artistId: 1,
+      title: "teste3",
+      year: 2000,
+      artist_id: 1,
     };
 
     albums = [
       {
-        albumId: 1,
-        albumTitle: "teste",
-        albumYear: 2000,
-        artistId: 1,
+        id: 1,
+        title: "teste",
+        year: 2000,
+        artist_id: 1,
       },
       {
-        albumId: 2,
-        albumTitle: "teste2",
-        albumYear: 2000,
-        artistId: 2,
+        id: 2,
+        title: "teste2",
+        year: 2000,
+        artist_id: 2,
       },
     ];
 
@@ -56,17 +57,17 @@ describe("testes unitários do método create do service de album", () => {
     };
 
     //comportamento do mock
-    mockRepository.create.mockImplementation((item: IClientAlbum) => {
+    mockRepository.create.mockImplementation(async (item: IClientAlbum) => {
       const newItem: IDatabaseAlbum = {
-        albumId: 3,
+        id: 3,
         ...item,
       };
       albums.push(newItem);
-      return newItem.albumId;
+      return newItem.id;
     });
 
     //instância de service com repositório mockado
-    service = new AlbumService(mockRepository);
+    service = new AlbumService(mockRepository, database);
     service.setDependencies(artistService)
 
   });
@@ -74,28 +75,28 @@ describe("testes unitários do método create do service de album", () => {
   afterEach(() => {
     albums = [
       {
-        albumId: 1,
-        albumTitle: "teste",
-        albumYear: 2000,
-        artistId: 1,
+        id: 1,
+        title: "teste",
+        year: 2000,
+        artist_id: 1,
       },
       {
-        albumId: 2,
-        albumTitle: "teste2",
-        albumYear: 2000,
-        artistId: 2,
+        id: 2,
+        title: "teste2",
+        year: 2000,
+        artist_id: 2,
       },
     ]
   })
 
-  it("success case: deve criar um album e receber o indice do albuma criado", () => {
+  it("success case: deve criar um album e receber o indice do albuma criado", async () => {
 
-    artistService.getById.mockReturnValue({
-      artistId: 3,
-      artistName: "teste",
-      artistNationality: "teste",
+    artistService.getById.mockResolvedValue({
+      id: 3,
+      name: "teste",
+      nationality: "teste",
     });
-    const data = service.create(album);
+    const data = await service.create(album);
     console.log(
       `deve criar um album e receber o indice do albuma criado: 3\n
             dados passados para criação: ${JSON.stringify(album)}
@@ -104,16 +105,16 @@ describe("testes unitários do método create do service de album", () => {
             `
     );
     expect(data).toBe(3);
-    expect({ albumId: 3, ...album }).toEqual(albums[2]);
+    expect({ id: 3, ...album }).toEqual(albums[2]);
   });
 
-  it("error case: deve dar erro por receber um album sem titulo", () => {
+  it("error case: deve dar erro por receber um album sem titulo", async () => {
     try {
       const albumWithOutTitle = {
-        albumYear: 2000,
-        artistId: 1,
+        year: 2000,
+        artist_id: 1,
       };
-      service.create(albumWithOutTitle as any);
+      await service.create(albumWithOutTitle as any);
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
       );
@@ -125,32 +126,32 @@ describe("testes unitários do método create do service de album", () => {
             `
       );
       expect(err).toBeInstanceOf(ValidationError);
-      expect((err as Error).message).toEqual('"albumTitle" is required');
+      expect((err as Error).message).toEqual('"title" is required');
     }
   });
 
-  it("error case: deve dar erro por receber um album sem artistId", () => {
+  it("error case: deve dar erro por receber um album sem artist_id", async () => {
     try {
       const albumWithOutTitle = {
-        albumTitle: "teste",
-        albumYear: 2000,
+        title: "teste",
+        year: 2000,
       };
-      service.create(albumWithOutTitle as any);
+      await service.create(albumWithOutTitle as any);
     } catch (err) {
       console.log(
         `
-            deve dar erro por receber um album sem artistId\n
+            deve dar erro por receber um album sem artist_id\n
             dados retornados: ${(err as Error).message}
             `
       );
       expect(err).toBeInstanceOf(ValidationError);
-      expect((err as Error).message).toEqual('"artistId" is required');
+      expect((err as Error).message).toEqual('"artist_id" is required');
     }
   });
 
-  it("error case: deve dar erro por receber um album sem propriedades", () => {
+  it("error case: deve dar erro por receber um album sem propriedades", async () => {
     try {
-      service.create({} as any);
+      await service.create({} as any);
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
       );
@@ -163,14 +164,14 @@ describe("testes unitários do método create do service de album", () => {
       );
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as Error).message).toEqual(
-        '"albumTitle" is required, "albumYear" is required, "artistId" is required'
+        '"title" is required, "year" is required, "artist_id" is required'
       );
     }
   });
 
-  it("error case: deve dar erro por receber um albuma com propriedade inválida", () => {
+  it("error case: deve dar erro por receber um albuma com propriedade inválida", async () => {
     try {
-      service.create({ ...album, invalidField: "true!" } as any);
+      await service.create({ ...album, invalidField: "true!" } as any);
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
       );
@@ -186,9 +187,9 @@ describe("testes unitários do método create do service de album", () => {
     }
   });
 
-  it("error case: deve dar erro por receber um album com titulo como number", () => {
+  it("error case: deve dar erro por receber um album com titulo como number", async () => {
     try {
-      service.create({ albumTitle: 2, albumYear: 2000, artistId: 1 } as any);
+      await service.create({ title: 2, year: 2000, artist_id: 1 } as any);
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
       );
@@ -200,16 +201,16 @@ describe("testes unitários do método create do service de album", () => {
             `
       );
       expect(err).toBeInstanceOf(ValidationError);
-      expect((err as Error).message).toEqual('"albumTitle" must be a string');
+      expect((err as Error).message).toEqual('"title" must be a string');
     }
   });
 
-  it("error case: deve dar erro por receber um album com artistId como string", () => {
+  it("error case: deve dar erro por receber um album com artist_id como string", async () => {
     try {
-      service.create({
-        albumTitle: "teste3",
-        albumYear: 2000,
-        artistId: "string",
+      await service.create({
+        title: "teste3",
+        year: 2000,
+        artist_id: "string",
       } as any);
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
@@ -217,21 +218,21 @@ describe("testes unitários do método create do service de album", () => {
     } catch (err) {
       console.log(
         `
-            deve dar erro por receber um album com artistId como string\n
+            deve dar erro por receber um album com artist_id como string\n
             dados retornados: ${(err as Error).message}
             `
       );
       expect(err).toBeInstanceOf(ValidationError);
-      expect((err as Error).message).toEqual('"artistId" must be a number');
+      expect((err as Error).message).toEqual('"artist_id" must be a number');
     }
   });
 
-  it("error case: deve dar erro por receber um album com ano como string", () => {
+  it("error case: deve dar erro por receber um album com ano como string", async () => {
     try {
-      service.create({
-        albumTitle: "teste3",
-        albumYear: "2000a",
-        artistId: 1,
+      await service.create({
+        title: "teste3",
+        year: "2000a",
+        artist_id: 1,
       } as any);
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
@@ -244,20 +245,20 @@ describe("testes unitários do método create do service de album", () => {
             `
       );
       expect(err).toBeInstanceOf(ValidationError);
-      expect((err as Error).message).toEqual('"albumYear" must be a number');
+      expect((err as Error).message).toEqual('"year" must be a number');
     }
   });
 
-  it("error case: deve dar erro por receber um album com artista não existente", () => {
+  it("error case: deve dar erro por receber um album com artista não existente", async () => {
     try {
 
 
-      artistService.getById.mockReturnValue(undefined);
+      artistService.getById.mockResolvedValue(undefined);
 
-      service.create({
-        albumTitle: "teste3",
-        albumYear: 2000,
-        artistId: 3,
+      await service.create({
+        title: "teste3",
+        year: 2000,
+        artist_id: 3,
       } as any);
       throw new Error(
         "Era esperado que lançasse NotFoundError, mas não lançou"
@@ -274,16 +275,16 @@ describe("testes unitários do método create do service de album", () => {
     }
   });
 
-  it("error case: deve dar erro por receber ano maior que ano atual", () => {
+  it("error case: deve dar erro por receber ano maior que ano atual", async () => {
     try {
 
 
-      artistService.getById.mockReturnValue({artistId: 1, artistName: "teste", artistNationality: "teste"});
+      artistService.getById.mockResolvedValue({id: 1, name: "teste", nationality: "teste"});
 
-      service.create({
-        albumTitle: "teste3",
-        albumYear: 2026,
-        artistId: 1,
+      await service.create({
+        title: "teste3",
+        year: 2026,
+        artist_id: 1,
       } as any);
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
@@ -296,7 +297,7 @@ describe("testes unitários do método create do service de album", () => {
             `
       );
       expect(err).toBeInstanceOf(ValidationError);
-      expect((err as Error).message).toEqual('"albumYear" must be less than or equal to 2025');
+      expect((err as Error).message).toEqual('"year" must be less than or equal to 2025');
     }
   });
 });

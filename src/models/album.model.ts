@@ -1,5 +1,5 @@
 import { Joi } from "celebrate";
-import { ICrud, ICrudController } from "./global.model"
+import { ICrud, ICrudController, ICrudRepository, PrismaTransactionClient } from "./global.model"
 import { IArtistService } from "./artist.model";
 
 export interface IAlbum {
@@ -22,8 +22,8 @@ export interface IDatabaseAlbum extends IAlbum {
 export interface IClientAlbum extends IAlbum {}
 
 //interce repository
-export interface IAlbumRepository extends ICrud<IClientAlbum, IDatabaseAlbum, UpdateAlbum> {
-    getByArtistId(id: number): Promise<IDatabaseAlbum[]>
+export interface IAlbumRepository extends ICrudRepository<IClientAlbum, IDatabaseAlbum, UpdateAlbum> {
+    getByArtistId(id: number, tx?: PrismaTransactionClient): Promise<IDatabaseAlbum[]>
 }
 
 //interface de controller
@@ -34,15 +34,15 @@ export interface IAlbumService extends ICrud<IClientAlbum, IDatabaseAlbum, Updat
   setDependencies(
       artistService: IArtistService,
       ): void
-  getByArtistId(id: number): Promise<IDatabaseAlbum[]>
+  getByArtistId(id: number, tx?: PrismaTransactionClient): Promise<IDatabaseAlbum[]>
 }
 
 //validação para album vindo do cliente
 export const albumSchemaValidate = Joi.object().keys({
-  albumTitle: Joi.string().max(255).min(1).required(),
+  title: Joi.string().max(255).min(1).required(),
   songs: Joi.array().items(Joi.number()),
-  albumYear: Joi.number().max(new Date().getFullYear()).required(),
-  artistId: Joi.number().min(1).required()
+  year: Joi.number().max(new Date().getFullYear()).required(),
+  artist_id: Joi.number().min(1).required()
 })
  .options({ abortEarly: false });;
 
@@ -50,6 +50,6 @@ export const albumUpdateSchemaValidate = albumSchemaValidate.fork(
   ['title', 'year', 'artist_id'],
   (schema) => schema.optional()
 ).keys({
-  albumId: Joi.number().min(1).required()
-}).or('title', 'yar', 'artist_id').options({ abortEarly: false });;
+  id: Joi.number().min(1).required()
+}).or('title', 'year', 'artist_id').options({ abortEarly: false });;
 

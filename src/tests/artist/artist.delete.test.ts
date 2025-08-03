@@ -13,14 +13,14 @@ describe("testes unitários do método delete do service de artist", () => {
   beforeEach(() => {
     artists = [
       {
-        artistId: 1,
-        artistName: "teste",
-        artistNationality: "teste",
+        id: 1,
+        name: "teste",
+        nationality: "teste",
       },
       {
-        artistId: 2,
-        artistName: "teste2",
-        artistNationality: "teste2",
+        id: 2,
+        name: "teste2",
+        nationality: "teste2",
       },
     ];
 
@@ -49,39 +49,39 @@ describe("testes unitários do método delete do service de artist", () => {
     service.setDependencies(mockAlbumService);
 
     //comportamento do mock repository
-    mockRepository.getById.mockImplementation((id: number) => {
-      const artist = artists.find((artist) => artist.artistId === id);
+    mockRepository.getById.mockImplementation(async (id: number) => {
+      const artist = artists.find((artist) => artist.id === id);
 
       if (!artist) return undefined;
 
       return artist;
     });
 
-    mockRepository.delete.mockImplementation((id: number) => {
-      const index = artists.findIndex((artist) => artist.artistId === id);
+    mockRepository.delete.mockImplementation(async (id: number) => {
+      const index = artists.findIndex((artist) => artist.id === id);
       artists.splice(index, 1);
     });
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     artists = [
       {
-        artistId: 1,
-        artistName: "teste",
-        artistNationality: "teste",
+        id: 1,
+        name: "teste",
+        nationality: "teste",
       },
       {
-        artistId: 2,
-        artistName: "teste2",
-        artistNationality: "teste2",
+        id: 2,
+        name: "teste2",
+        nationality: "teste2",
       },
     ];
   });
 
-  it("success: deve deletar um artista de acordo com o id", () => {
+  it("success: deve deletar um artista de acordo com o id", async () => {
     const oldRepo = [...artists];
-    mockAlbumService.getByArtistId.mockReturnValue([]);
-    service.delete(1);
+    mockAlbumService.getByArtistId.mockResolvedValue([]);
+    await service.delete(1);
 
     console.log(`
             deve deletar um artista de acordo com o id
@@ -92,24 +92,24 @@ describe("testes unitários do método delete do service de artist", () => {
     expect(artists.length).toBe(1);
     expect(artists).toEqual([
       {
-        artistId: 2,
-        artistName: "teste2",
-        artistNationality: "teste2",
+        id: 2,
+        name: "teste2",
+        nationality: "teste2",
       },
     ]);
   });
 
-  it("error case: deve dar erro pois artista tem uma relação", () => {
+  it("error case: deve dar erro pois artista tem uma relação", async () => {
     try {
-      mockAlbumService.getByArtistId.mockReturnValue([{
-        albumId: 1,
-        albumTitle: "teste",
-        albumYear: 1,
-        artistId: 1,
-        albumDuration: "teste",
+      mockAlbumService.getByArtistId.mockResolvedValue([{
+        id: 1,
+        title: "teste",
+        year: 1,
+        artist_id: 1,
+        duration: "teste",
       }]);
 
-      service.delete(1);
+      await service.delete(1);
     } catch (err) {
       console.log(
         `deve dar erro pois artista tem uma relação\n
@@ -124,9 +124,9 @@ describe("testes unitários do método delete do service de artist", () => {
     }
   });
 
-  it("error case: deve dar erro caso id não seja number", () => {
+  it("error case: deve dar erro caso id não seja number", async () => {
     try {
-      service.delete('1a' as any);
+      await service.delete('1a' as any);
     } catch (err) {
       console.log(
         `deve dar erro caso id não seja number\n
@@ -140,9 +140,9 @@ describe("testes unitários do método delete do service de artist", () => {
     }
   });
 
-  it("error case: deve dar erro caso artista não exista", () => {
+  it("error case: deve dar erro caso artista não exista", async () => {
     try {
-      service.delete(3);
+      await service.delete(3);
     } catch (err) {
       console.log(
         `error case: deve dar erro caso artista não exista\n

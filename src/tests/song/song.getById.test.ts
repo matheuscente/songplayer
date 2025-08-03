@@ -11,16 +11,16 @@ describe('testes unitários do método getById do service de song', () => {
     beforeAll(() => {
         songs = [
             {
-            songId: 1,
-            songName: 'teste',
-            songYear: 2000,
-            songDuration: 15000
+            id: 1,
+            name: 'teste',
+            year: 2000,
+            duration: 15000
         },
         {
-            songId: 2,
-            songName: 'teste2',
-            songYear: 2000,
-            songDuration: 20000
+            id: 2,
+            name: 'teste2',
+            year: 2000,
+            duration: 20000
         }
     ];
 
@@ -34,9 +34,9 @@ describe('testes unitários do método getById do service de song', () => {
         }
 
         //configuração do mock
-        mockRepository.getById.mockImplementation((id) => {
+        mockRepository.getById.mockImplementation(async (id) => {
             const song = songs.find((song) => {
-                return song.songId === id
+                return song.id === id
             })
             if(!song) return undefined
             return {...song}
@@ -47,10 +47,10 @@ describe('testes unitários do método getById do service de song', () => {
         service = new SongService(mockRepository)
     })
 
-    it('success case: deve retornar o song de acordo com o id', () => {
+    it('success case: deve retornar o song de acordo com o id', async () => {
         const song = {...songs[0]}
-        song.songDuration  = TimeConverter.millisecondsToTime(song.songDuration as number)
-        const data = service.getById(1)
+        song.duration  = TimeConverter.millisecondsToTime(song.duration as number)
+        const data = await service.getById(1)
         console.log(
             `deve retornar o song de acordo com o id\n
             dados repository: ${JSON.stringify(song)}\n
@@ -61,9 +61,9 @@ describe('testes unitários do método getById do service de song', () => {
         expect(data).toEqual(song)
     })
 
-    it('error case: deve retornar undefined pois nao existe item no banco', () => {
+    it('error case: deve retornar undefined pois nao existe item no banco', async () => {
         
-        const data = service.getById(3)
+        const data = await service.getById(3)
         console.log(
             `
             error case: deve retornar undefined pois nao existe item no banco\n
@@ -74,9 +74,9 @@ describe('testes unitários do método getById do service de song', () => {
         expect(data).toBe(undefined)
     })
 
-        it('error case: erro caso o id passado nao seja um número', () => {
+        it('error case: erro caso o id passado nao seja um número', async () => {
             try{
-                service.getById('a2' as any);
+                await service.getById('a2' as any);
                 throw new Error('Era esperado que lançasse ValidationError, mas não lançou');            }catch(err) {
                 console.log('error case: erro caso o id passado nao seja um número\n', `dados retornados ${(err as Error).message}`);
                 expect(err).toBeInstanceOf(ValidationError);

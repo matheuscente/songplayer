@@ -1,5 +1,7 @@
 import AlbumService from "../../services/album.service";
 import { IAlbumRepository, IDatabaseAlbum } from "../../models/album.model";
+import database from "../../prismaUtils/client"
+
 
 
 describe('testes unitários do método getAll do service de album', () => {
@@ -10,16 +12,16 @@ describe('testes unitários do método getAll do service de album', () => {
     beforeAll(() => {
         albums = [
             {
-            albumId: 1,
-            albumTitle: 'teste',
-            albumYear: 2000,
-            artistId: 1
+            id: 1,
+            title: 'teste',
+            year: 2000,
+            artist_id: 1
         },
         {
-            albumId: 2,
-            albumTitle: 'teste2',
-            albumYear: 2000,
-            artistId: 2
+            id: 2,
+            title: 'teste2',
+            year: 2000,
+            artist_id: 2
         }
     ];
 
@@ -35,12 +37,12 @@ describe('testes unitários do método getAll do service de album', () => {
 
 
         //instância de service com repositório mockado
-        service = new AlbumService(mockRepository)
+        service = new AlbumService(mockRepository, database)
     })
 
-    it('success case: deve retornar o todos os albums', () => {
-        mockRepository.getAll.mockReturnValue(albums)
-        const data = service.getAll()
+    it('success case: deve retornar o todos os albums', async () => {
+        mockRepository.getAll.mockResolvedValue(albums)
+        const data = await service.getAll()
         console.log(
             `deve retornar todos os albums\n
             dados repository: ${JSON.stringify(albums)}\n
@@ -51,9 +53,9 @@ describe('testes unitários do método getAll do service de album', () => {
         expect(data).toEqual(albums)
     })
 
-    it('success case: deve retornar array vazio pois nao existe item no banco', () => {
-        mockRepository.getAll.mockReturnValue([])
-        const data = service.getAll()
+    it('success case: deve retornar array vazio pois nao existe item no banco', async () => {
+        mockRepository.getAll.mockResolvedValue([])
+        const data = await service.getAll()
         console.log(
             `
             deve retornar array vazio pois nao existe item no banco\n

@@ -11,26 +11,26 @@ describe('testes unitários do método update do service de artist', () => {
 
     beforeEach(() => {
          artist = {
-            artistId: 3,
-            artistName: 'teste UPDATE',
-            artistNationality: 'teste UPDATE'
+            id: 3,
+            name: 'teste UPDATE',
+            nationality: 'teste UPDATE'
         }
 
         artists = [
             {
-            artistId: 1,
-            artistName: 'teste',
-            artistNationality: 'teste'
+            id: 1,
+            name: 'teste',
+            nationality: 'teste'
         },
         {
-            artistId: 2,
-            artistName: 'teste2',
-            artistNationality: 'teste2'
+            id: 2,
+            name: 'teste2',
+            nationality: 'teste2'
         },
         {
-            artistId: 3,
-            artistName: 'teste3',
-            artistNationality: 'teste3'
+            id: 3,
+            name: 'teste3',
+            nationality: 'teste3'
         }
     ];
 
@@ -44,17 +44,17 @@ describe('testes unitários do método update do service de artist', () => {
         }
 
         //comportamento do mock
-        mockRepository.update.mockImplementation((item: IDatabaseArtist | UpdateArtist) => {
+        mockRepository.update.mockImplementation(async (item: IDatabaseArtist | UpdateArtist) => {
             artists.forEach(artist => {
-                if(item.artistId === artist.artistId) {
-                    artist.artistName = (item as IDatabaseArtist).artistName,
-                    artist.artistNationality = (item as IDatabaseArtist).artistNationality
+                if(item.id === artist.id) {
+                    artist.name = (item as IDatabaseArtist).name,
+                    artist.nationality = (item as IDatabaseArtist).nationality
                 }
             })
         })
 
-        mockRepository.getById.mockImplementation((id: number) => {
-            const artist = artists.find(artist => artist.artistId === id)
+        mockRepository.getById.mockImplementation(async (id: number) => {
+            const artist = artists.find(artist => artist.id === id)
 
             if(!artist) return undefined
 
@@ -66,15 +66,15 @@ describe('testes unitários do método update do service de artist', () => {
         service = new ArtistService(mockRepository)
     })
 
-    afterEach(() => {
-        artists[2].artistName = 'teste 3';
-        artists[2].artistNationality = 'teste 3'
+    afterEach(async () => {
+        artists[2].name = 'teste 3';
+        artists[2].nationality = 'teste 3'
     })
 
-    it('sucess case: deve atualizar um artista de acordo com o id', () => {
+    it('sucess case: deve atualizar um artista de acordo com o id', async () => {
         
         const oldArtist: IDatabaseArtist = {...artists[2]}
-        service.update(artist)
+        await service.update(artist)
         console.log(
             `deve atualizar um artista de acordo com id\n
             dados passados para atualização: ${JSON.stringify(artist)},
@@ -86,10 +86,10 @@ describe('testes unitários do método update do service de artist', () => {
         expect(artists[2]).toEqual(artist)
     })
 
-    it('sucess case: deve atualizar o nome do artista de acordo com o id', () => {
-        delete artist.artistNationality
+    it('sucess case: deve atualizar o nome do artista de acordo com o id', async () => {
+        delete artist.nationality
         const oldArtist = {...artists[2]}
-        service.update(artist)
+        await service.update(artist)
         console.log(
             `deve atualizar o nome do artista de acordo com o id\n
             dados passados para atualização: ${JSON.stringify(artist)},
@@ -98,13 +98,13 @@ describe('testes unitários do método update do service de artist', () => {
             `
             
         )
-        expect(artists[2]).toEqual({...artist, artistNationality: oldArtist.artistNationality})
+        expect(artists[2]).toEqual({...artist, nationality: oldArtist.nationality})
     })
 
-    it('sucess case: deve atualizar a nacionalidade do artista de acordo com o id', () => {
-        delete artist.artistName
+    it('sucess case: deve atualizar a nacionalidade do artista de acordo com o id', async () => {
+        delete artist.name
         const oldArtist = {...artists[2]}
-        service.update(artist)
+        await service.update(artist)
         console.log(
             `deve atualizar a nacionalidade do artista de acordo com o id\n
             dados passados para atualização: ${JSON.stringify(artist)},
@@ -113,15 +113,15 @@ describe('testes unitários do método update do service de artist', () => {
             `
             
         )
-        expect(artists[2]).toEqual({...artist, artistName: oldArtist.artistName})
+        expect(artists[2]).toEqual({...artist, name: oldArtist.name})
     })
 
-    it('error case: deve dar erro pois é necessário no mínimo 1 campo para atualização', () => {
-        delete artist.artistName
-        delete artist.artistNationality
+    it('error case: deve dar erro pois é necessário no mínimo 1 campo para atualização', async () => {
+        delete artist.name
+        delete artist.nationality
 
         try{
-            service.update(artist)
+            await service.update(artist)
             throw new Error('Era esperado que lançasse ValidationError, mas não lançou');
         } catch(err){
             console.log(
@@ -131,18 +131,18 @@ describe('testes unitários do método update do service de artist', () => {
             )
         
             expect(err).toBeInstanceOf(ValidationError)
-            expect((err as ValidationError).message).toEqual('"value" must contain at least one of [artistName, artistNationality]')
+            expect((err as ValidationError).message).toEqual('"value" must contain at least one of [name, nationality]')
 
 
         }
         
     })
 
-    it('error case: deve dar erro pois não existe artista no id informado', () => {
-       artist.artistId = 4
+    it('error case: deve dar erro pois não existe artista no id informado', async () => {
+       artist.id = 4
 
         try{
-            service.update(artist)
+            await service.update(artist)
             throw new Error('Era esperado que lançasse NotFoundError, mas não lançou');
         } catch(err){
             console.log(
@@ -159,11 +159,11 @@ describe('testes unitários do método update do service de artist', () => {
         
     })
 
-    it('error case: deve dar erro pois id não é um número', () => {
-       artist.artistId = ('4a' as any)
+    it('error case: deve dar erro pois id não é um número', async () => {
+       artist.id = ('4a' as any)
 
         try{
-            service.update(artist)
+            await service.update(artist)
             throw new Error('Era esperado que lançasse ValidationError, mas não lançou');
         } catch(err){
             console.log(
@@ -173,47 +173,47 @@ describe('testes unitários do método update do service de artist', () => {
             )
         
             expect(err).toBeInstanceOf(ValidationError)
-            expect((err as ValidationError).message).toEqual('"artistId" must be a number')
+            expect((err as ValidationError).message).toEqual('"id" must be a number')
 
         }
         
     })
 
-     it('error case: deve dar erro pois artistNationality não é uma string', () => {
-       artist.artistNationality = (123 as any)
+     it('error case: deve dar erro pois nationality não é uma string', async () => {
+       artist.nationality = (123 as any)
 
         try{
-            service.update(artist)
+            await service.update(artist)
             throw new Error('Era esperado que lançasse ValidationError, mas não lançou');
         } catch(err){
             console.log(
-            `deve dar erro pois artistNationality não é uma string\n
+            `deve dar erro pois nationality não é uma string\n
             resultado: ${err}
             `
             )
         
             expect(err).toBeInstanceOf(ValidationError)
-            expect((err as ValidationError).message).toEqual('"artistNationality" must be a string')
+            expect((err as ValidationError).message).toEqual('"nationality" must be a string')
 
         }
         
     })
 
-     it('error case: deve dar erro pois artistName não é uma string', () => {
-       artist.artistName = (123 as any)
+     it('error case: deve dar erro pois name não é uma string', async () => {
+       artist.name = (123 as any)
 
         try{
-            service.update(artist)
+            await service.update(artist)
             throw new Error('Era esperado que lançasse ValidationError, mas não lançou');
         } catch(err){
             console.log(
-            `deve dar erro pois artistName não é uma string\n
+            `deve dar erro pois name não é uma string\n
             resultado: ${err}
             `
             )
         
             expect(err).toBeInstanceOf(ValidationError)
-            expect((err as ValidationError).message).toEqual('"artistName" must be a string')
+            expect((err as ValidationError).message).toEqual('"name" must be a string')
 
         }
         

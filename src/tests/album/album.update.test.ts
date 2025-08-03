@@ -1,4 +1,6 @@
 import AlbumService from "../../services/album.service";
+import database from "../../prismaUtils/client"
+
 import {
   IAlbumRepository,
   IDatabaseAlbum,
@@ -26,16 +28,16 @@ describe("testes unitários do método update do service de album", () => {
   beforeAll(() => {
     albums = [
       {
-        albumId: 1,
-        albumTitle: "teste",
-        albumYear: 2000,
-        artistId: 1,
+        id: 1,
+        title: "teste",
+        year: 2000,
+        artist_id: 1,
       },
       {
-        albumId: 2,
-        albumTitle: "teste2",
-        albumYear: 2000,
-        artistId: 2,
+        id: 2,
+        title: "teste2",
+        year: 2000,
+        artist_id: 2,
       },
     ];
 
@@ -50,142 +52,142 @@ describe("testes unitários do método update do service de album", () => {
     };
 
     //comportamento do mock
-    mockRepository.update.mockImplementation((item: UpdateAlbum) => {
+    mockRepository.update.mockImplementation(async (item: UpdateAlbum) => {
       albums.forEach((album, index) => {
-        if (album.albumId === item.albumId) {
+        if (album.id === item.id) {
           albums[index] = item as IDatabaseAlbum;
         }
       });
     });
 
-    mockRepository.getById.mockImplementation((id) => {
-      return albums.find((album) => album.albumId === id);
+    mockRepository.getById.mockImplementation(async (id) => {
+      return albums.find((album) => album.id === id);
     });
 
     //instância de service com repositório mockado
-    service = new AlbumService(mockRepository);
+    service = new AlbumService(mockRepository, database);
     service.setDependencies(artistService);
   });
 
   beforeEach(() => {
     albums = [
       {
-        albumId: 1,
-        albumTitle: "teste",
-        albumYear: 2000,
-        artistId: 1,
+        id: 1,
+        title: "teste",
+        year: 2000,
+        artist_id: 1,
       },
       {
-        albumId: 2,
-        albumTitle: "teste2",
-        albumYear: 2000,
-        artistId: 2,
+        id: 2,
+        title: "teste2",
+        year: 2000,
+        artist_id: 2,
       },
     ];
   });
 
-  it("success case: deve atualizar o nome do album de acordo com o albumId", () => {
-    artistService.getById.mockReturnValue({
-      artistId: 1,
-      artistName: "teste",
-      artistNationality: "teste",
+  it("success case: deve atualizar o nome do album de acordo com o id", async () => {
+    artistService.getById.mockResolvedValue({
+      id: 1,
+      name: "teste",
+      nationality: "teste",
     });
 
     const oldBd = albums[0];
-    service.update({ albumId: 1, albumTitle: "UPDATE teste" });
+    await service.update({ id: 1, title: "UPDATE teste" });
     console.log(
-      `deve atualizar o nome do album de acordo com o albumId: 1\n
+      `deve atualizar o nome do album de acordo com o id: 1\n
         dados passados para autualização: ${JSON.stringify({
-          albumId: 1,
-          albumTitle: "UPDATE teste",
+          id: 1,
+          title: "UPDATE teste",
         })}
         dados no banco: ${JSON.stringify(oldBd)}
         dados no banco após a atualização ${JSON.stringify(albums[0])}
     `
     );
-    expect(albums[0].albumTitle).toBe("UPDATE teste");
-    expect(albums[0].albumId).toBe(oldBd.albumId);
-    expect(albums[0].albumYear).toBe(oldBd.albumYear);
-    expect(albums[0].artistId).toBe(oldBd.artistId);
+    expect(albums[0].title).toBe("UPDATE teste");
+    expect(albums[0].id).toBe(oldBd.id);
+    expect(albums[0].year).toBe(oldBd.year);
+    expect(albums[0].artist_id).toBe(oldBd.artist_id);
   });
 
-  it("success case: deve atualizar o ano do album de acordo com o albumId", () => {
-    artistService.getById.mockReturnValue({
-      artistId: 1,
-      artistName: "teste",
-      artistNationality: "teste",
+  it("success case: deve atualizar o ano do album de acordo com o id", async () => {
+    artistService.getById.mockResolvedValue({
+      id: 1,
+      name: "teste",
+      nationality: "teste",
     });
 
-    const albumUpdate: UpdateAlbum = { albumId: 1, albumYear: 2001 };
+    const albumUpdate: UpdateAlbum = { id: 1, year: 2001 };
     const oldBd = albums[0];
-    service.update(albumUpdate);
+    await await service.update(albumUpdate);
     console.log(
-      `deve atualizar o ano do album de acordo com o albumId: 1\n
+      `deve atualizar o ano do album de acordo com o id: 1\n
         dados passados para autualização: ${JSON.stringify(albumUpdate)}
         dados no banco: ${JSON.stringify(oldBd)}
         dados no banco após a atualização ${JSON.stringify(albums[0])}
     `
     );
-    expect(albums[0].albumYear).toBe(albumUpdate.albumYear);
-    expect(albums[0].albumId).toBe(oldBd.albumId);
-    expect(albums[0].albumTitle).toBe(oldBd.albumTitle);
-    expect(albums[0].artistId).toBe(oldBd.artistId);
+    expect(albums[0].year).toBe(albumUpdate.year);
+    expect(albums[0].id).toBe(oldBd.id);
+    expect(albums[0].title).toBe(oldBd.title);
+    expect(albums[0].artist_id).toBe(oldBd.artist_id);
   });
 
-  it("success case: deve atualizar o artistId do album de acordo com o albumId", () => {
-    artistService.getById.mockReturnValue({
-      artistId: 2,
-      artistName: "teste",
-      artistNationality: "teste",
+  it("success case: deve atualizar o artist_id do album de acordo com o id", async () => {
+    artistService.getById.mockResolvedValue({
+      id: 2,
+      name: "teste",
+      nationality: "teste",
     });
 
-    const albumUpdate: UpdateAlbum = { albumId: 1, artistId: 2 };
+    const albumUpdate: UpdateAlbum = { id: 1, artist_id: 2 };
     const oldBd = albums[0];
-    service.update(albumUpdate);
+    await service.update(albumUpdate);
     console.log(
-      `deve atualizar o artistId do album de acordo com o albumId: 1\n
+      `deve atualizar o artist_id do album de acordo com o id: 1\n
         dados passados para autualização: ${JSON.stringify(albumUpdate)}
         dados no banco: ${JSON.stringify(oldBd)}
         dados no banco após a atualização ${JSON.stringify(albums[0])}
     `
     );
-    expect(albums[0].artistId).toBe(2);
-    expect(albums[0].albumId).toBe(oldBd.albumId);
-    expect(albums[0].albumTitle).toBe(oldBd.albumTitle);
-    expect(albums[0].albumYear).toBe(oldBd.albumYear);
+    expect(albums[0].artist_id).toBe(2);
+    expect(albums[0].id).toBe(oldBd.id);
+    expect(albums[0].title).toBe(oldBd.title);
+    expect(albums[0].year).toBe(oldBd.year);
   });
 
-  it("success case: deve atualizar todos os dados do album de acordo com o albumId", () => {
-    artistService.getById.mockReturnValue({
-      artistId: 2,
-      artistName: "teste",
-      artistNationality: "teste",
+  it("success case: deve atualizar todos os dados do album de acordo com o id", async () => {
+    artistService.getById.mockResolvedValue({
+      id: 2,
+      name: "teste",
+      nationality: "teste",
     });
 
     const albumUpdate: UpdateAlbum = {
-      albumId: 1,
-      artistId: 2,
-      albumTitle: "teste UPDATE",
-      albumYear: 2001,
+      id: 1,
+      artist_id: 2,
+      title: "teste UPDATE",
+      year: 2001,
     };
     const oldBd = albums[0];
-    service.update(albumUpdate);
+    await service.update(albumUpdate);
     console.log(
-      `deve atualizar todos os dados do album de acordo com o albumId: 1\n
+      `deve atualizar todos os dados do album de acordo com o id: 1\n
         dados passados para autualização: ${JSON.stringify(albumUpdate)}
         dados no banco: ${JSON.stringify(oldBd)}
         dados no banco após a atualização ${JSON.stringify(albums[0])}
     `
     );
-    expect(albums[0].artistId).toBe(albumUpdate.artistId);
-    expect(albums[0].albumId).toBe(albumUpdate.albumId);
-    expect(albums[0].albumTitle).toBe(albumUpdate.albumTitle);
-    expect(albums[0].albumYear).toBe(albumUpdate.albumYear);
+    expect(albums[0].artist_id).toBe(albumUpdate.artist_id);
+    expect(albums[0].id).toBe(albumUpdate.id);
+    expect(albums[0].title).toBe(albumUpdate.title);
+    expect(albums[0].year).toBe(albumUpdate.year);
   });
 
-  it("error case: deve dar erro por receber um album sem propriedades", () => {
+  it("error case: deve dar erro por receber um album sem propriedades", async () => {
     try {
-      service.update({ albumId: 1 });
+      await service.update({ id: 1 });
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
       );
@@ -198,15 +200,15 @@ describe("testes unitários do método update do service de album", () => {
       );
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as Error).message).toEqual(
-        '"value" must contain at least one of [albumTitle, albumYear, artistId]'
+        '"value" must contain at least one of [title, year, artist_id]'
       );
     }
   });
 
 
-    it("error case: deve dar erro por receber um albuma com propriedade inválida", () => {
+    it("error case: deve dar erro por receber um albuma com propriedade inválida", async () => {
       try {
-        service.update({ albumId: 1, albumTitle: 'teste UPDATE', invalidField: "true!" } as any);
+        await service.update({ id: 1, title: 'teste UPDATE', invalidField: "true!" } as any);
         throw new Error(
           "Era esperado que lançasse ValidationError, mas não lançou"
         );
@@ -222,9 +224,9 @@ describe("testes unitários do método update do service de album", () => {
       }
     });
   
-    it("error case: deve dar erro por receber um album com titulo como number", () => {
+    it("error case: deve dar erro por receber um album com titulo como number", async () => {
       try {
-        service.update({ albumTitle: 2, albumYear: 2000, artistId: 1, albumId: 1 } as any);
+        await service.update({ title: 2, year: 2000, artist_id: 1, id: 1 } as any);
         throw new Error(
           "Era esperado que lançasse ValidationError, mas não lançou"
         );
@@ -236,17 +238,17 @@ describe("testes unitários do método update do service de album", () => {
               `
         );
         expect(err).toBeInstanceOf(ValidationError);
-        expect((err as Error).message).toEqual('"albumTitle" must be a string');
+        expect((err as Error).message).toEqual('"title" must be a string');
       }
     });
   
-    it("error case: deve dar erro por receber um album com artistId como string", () => {
+    it("error case: deve dar erro por receber um album com artist_id como string", async () => {
       try {
-        service.update({
-          albumTitle: "teste3",
-          albumYear: 2000,
-          artistId: "string",
-          albumId: 1
+        await service.update({
+          title: "teste3",
+          year: 2000,
+          artist_id: "string",
+          id: 1
         } as any);
         throw new Error(
           "Era esperado que lançasse ValidationError, mas não lançou"
@@ -254,22 +256,22 @@ describe("testes unitários do método update do service de album", () => {
       } catch (err) {
         console.log(
           `
-              deve dar erro por receber um album com artistId como string\n
+              deve dar erro por receber um album com artist_id como string\n
               dados retornados: ${(err as Error).message}
               `
         );
         expect(err).toBeInstanceOf(ValidationError);
-        expect((err as Error).message).toEqual('"artistId" must be a number');
+        expect((err as Error).message).toEqual('"artist_id" must be a number');
       }
     });
   
-    it("error case: deve dar erro por receber um album com ano como string", () => {
+    it("error case: deve dar erro por receber um album com ano como string", async () => {
       try {
-        service.update({
-          albumTitle: "teste3",
-          albumYear: "2000a",
-          artistId: 1,
-          albumId: 1
+        await service.update({
+          title: "teste3",
+          year: "2000a",
+          artist_id: 1,
+          id: 1
         } as any);
         throw new Error(
           "Era esperado que lançasse ValidationError, mas não lançou"
@@ -282,21 +284,21 @@ describe("testes unitários do método update do service de album", () => {
               `
         );
         expect(err).toBeInstanceOf(ValidationError);
-        expect((err as Error).message).toEqual('"albumYear" must be a number');
+        expect((err as Error).message).toEqual('"year" must be a number');
       }
     });
   
-    it("error case: deve dar erro por receber um album com artista não existente", () => {
+    it("error case: deve dar erro por receber um album com artista não existente", async () => {
       try {
   
   
-        artistService.getById.mockReturnValue(undefined);
+        artistService.getById.mockResolvedValue(undefined);
   
-        service.update({
-          albumTitle: "teste3",
-          albumYear: 2000,
-          artistId: 3,
-          albumId: 1
+        await service.update({
+          title: "teste3",
+          year: 2000,
+          artist_id: 3,
+          id: 1
 
         } as any);
         throw new Error(
@@ -314,17 +316,17 @@ describe("testes unitários do método update do service de album", () => {
       }
     });
   
-    it("error case: deve dar erro por receber ano maior que ano atual", () => {
+    it("error case: deve dar erro por receber ano maior que ano atual", async () => {
       try {
   
   
-        artistService.getById.mockReturnValue({artistId: 1, artistName: "teste", artistNationality: "teste"});
+        artistService.getById.mockResolvedValue({id: 1, name: "teste", nationality: "teste"});
   
-        service.update({
-          albumTitle: "teste3",
-          albumYear: 2026,
-          artistId: 1,
-          albumId: 1
+        await service.update({
+          title: "teste3",
+          year: 2026,
+          artist_id: 1,
+          id: 1
         } as any);
         throw new Error(
           "Era esperado que lançasse ValidationError, mas não lançou"
@@ -337,7 +339,7 @@ describe("testes unitários do método update do service de album", () => {
               `
         );
         expect(err).toBeInstanceOf(ValidationError);
-        expect((err as Error).message).toEqual('"albumYear" must be less than or equal to 2025');
+        expect((err as Error).message).toEqual('"year" must be less than or equal to 2025');
       }
     });
 });

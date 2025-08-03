@@ -44,26 +44,26 @@ describe("testes unitários do método getById do service de songAlbum", () => {
   beforeEach(() => {
        songAlbumDB = [
     {
-        songId: 1,
-        albumId: 1
+        song_id: 1,
+        album_id: 1
   },
   {
-    songId: 1,
-    albumId: 2
+    song_id: 1,
+    album_id: 2
   }
 ]
     //comportamento do mock
-    mockRepository.getById.mockImplementation((songId, albumId) => {
+    mockRepository.getById.mockImplementation(async (songId, albumId) => {
       return songAlbumDB.find(item => 
-        item.albumId === albumId && item.songId === songId
+        item.album_id === albumId && item.song_id === songId
       ) 
     });
   });
 
-  it("success case: deve retornar a relação de acordo com o songId e albumId", () => {
+  it("success case: deve retornar a relação de acordo com o songId e albumId", async () => {
 
-    const songAlbum: ISongAlbum = { songId: 1, albumId: 1 };
-    const relation = service.getById(songAlbum.songId, songAlbum.albumId);
+    const songAlbum: ISongAlbum = { song_id: 1, album_id: 1 };
+    const relation = await service.getById(songAlbum.song_id, songAlbum.album_id);
     console.log(
       `deve retornar a relação de acordo com o songId e albumId\n
             dados passados para busca: ${JSON.stringify(songAlbum)}
@@ -74,14 +74,14 @@ describe("testes unitários do método getById do service de songAlbum", () => {
     expect(songAlbumDB[0]).toEqual(relation);
   });
 
-   it("error case: deve dar erro pois o id de album não é um número", () => {
+   it("error case: deve dar erro pois o id de album não é um número", async () => {
     try {
       const songAlbum: ISongAlbum = {
-        songId: 1,
-        albumId: "a1" as unknown as number,
+        song_id: 1,
+        album_id: "a1" as unknown as number,
       };
 
-      service.getById(songAlbum.songId, songAlbum.albumId);
+      await service.getById(songAlbum.song_id, songAlbum.album_id);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -95,19 +95,19 @@ describe("testes unitários do método getById do service de songAlbum", () => {
 
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as ValidationError).message).toBe(
-        '"albumId" must be a number'
+        '"album_id" must be a number'
       );
     }
   });
 
-  it("error case: deve dar erro pois o id de song não é um número", () => {
+  it("error case: deve dar erro pois o id de song não é um número", async () => {
     try {
       const songAlbum: ISongAlbum = {
-        songId: "a1" as unknown as number,
-        albumId: 1,
+        song_id: "a1" as unknown as number,
+        album_id: 1,
       };
 
-      service.getById(songAlbum.songId, songAlbum.albumId);
+      await service.getById(songAlbum.song_id, songAlbum.album_id);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -121,20 +121,20 @@ describe("testes unitários do método getById do service de songAlbum", () => {
 
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as ValidationError).message).toBe(
-        '"songId" must be a number'
+        '"song_id" must be a number'
       );
     }
   });
 
-  it("error case: deve retornar undefined pois a relação não existe", () => {
+  it("error case: deve retornar undefined pois a relação não existe", async () => {
 
     songAlbumDB.splice(0,1)
       const songAlbum: ISongAlbum = {
-        songId: 1,
-        albumId: 1
+        song_id: 1,
+        album_id: 1
       };
 
-      const data = service.getById(songAlbum.songId, songAlbum.albumId);
+      const data = await service.getById(songAlbum.song_id, songAlbum.album_id);
       console.log(
         `deve retornar undefined pois a relação não existe\n
             dados retornados: ${data}
@@ -145,13 +145,13 @@ describe("testes unitários do método getById do service de songAlbum", () => {
 
   });
 
-  it("error case: deve dar erro pois o song id nao foi passado", () => {
+  it("error case: deve dar erro pois o song id nao foi passado", async () => {
     try {
       const songAlbum: any = {
-        albumId: 1,
+        album_id: 1,
       };
 
-      service.getById(songAlbum.songId, songAlbum.albumId);
+      await service.getById(songAlbum.songId, songAlbum.album_id);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -165,18 +165,18 @@ describe("testes unitários do método getById do service de songAlbum", () => {
 
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as ValidationError).message).toBe(
-        '"songId" is required'
+        '"song_id" is required'
       );
     }
   });
 
-    it("error case: deve dar erro pois o album id nao foi passado", () => {
+    it("error case: deve dar erro pois o album id nao foi passado", async () => {
     try {
       const songAlbum: any = {
-        songId: 1,
+        song_id: 1,
       };
 
-      service.getById(songAlbum.songId, songAlbum.albumId);
+      await service.getById(songAlbum. song_id, songAlbum.albumId);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -190,7 +190,7 @@ describe("testes unitários do método getById do service de songAlbum", () => {
 
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as ValidationError).message).toBe(
-        '"albumId" is required'
+        '"album_id" is required'
       );
     }
   });

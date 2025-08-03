@@ -11,17 +11,17 @@ class AlbumController implements IAlbumController {
     this.albumService = albumService;
     this.albumWithRelationship = albumWithRelationship
   }
-  getAll(req: Request, res: Response, next: NextFunction) {
+  async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const {relations} = req.query
       if(relations) {
         if(relations !== "true") throw new NotFoundError('parametro query inválido')
-         const data = this.albumWithRelationship.getAll()
+         const data = await this.albumWithRelationship.getAll()
         if(data.length === 0) throw new NotFoundError('não existem albuns')
         res.status(200).json(data)
         return
       }
-      const albums = this.albumService.getAll();
+      const albums = await this.albumService.getAll();
       if (albums.length === 0) throw new NotFoundError("não existem albuns");
       res.status(200).json(albums);
     } catch (err) {
@@ -30,18 +30,18 @@ class AlbumController implements IAlbumController {
     }
   }
 
-  getById(req: Request, res: Response, next: NextFunction) {
+  async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const albumId: number = Number(req.params.id);
       const {relations} = req.query
       if(relations) {
         if(relations !== "true") throw new NotFoundError('parametro query inválido')
-        const data = this.albumWithRelationship.getById(Number(albumId))
+        const data = await this.albumWithRelationship.getById(Number(albumId))
         if(!data) new NotFoundError('album não encontrado')
         res.status(200).json(data)
         return
       }
-      const album = this.albumService.getById(albumId);
+      const album = await this.albumService.getById(albumId);
 
       if (!album) {
         throw new NotFoundError("album não encontrado");
@@ -53,11 +53,11 @@ class AlbumController implements IAlbumController {
     }
   }
 
-  create(req: Request, res: Response, next: NextFunction) {
+  async create(req: Request, res: Response, next: NextFunction) {
     try {
       const album: IClientAlbum = req.body;
       const trimmedAlbum = trimString(album)
-      this.albumService.create(trimmedAlbum);
+      await this.albumService.create(trimmedAlbum);
       res.status(201).json({ message: "album criado com sucesso" });
     } catch (err) {
       console.log(err);
@@ -65,12 +65,12 @@ class AlbumController implements IAlbumController {
     }
   }
 
-  update(req: Request, res: Response, next: NextFunction) {
+  async update(req: Request, res: Response, next: NextFunction) {
     try {
       const album: UpdateAlbum = req.body;
       const trimmedAlbum = trimString(album)
 
-      this.albumService.update(trimmedAlbum);
+      await this.albumService.update(trimmedAlbum);
 
       res.status(200).json({ message: "album atualizada com sucesso" });
     } catch (err) {
@@ -79,10 +79,10 @@ class AlbumController implements IAlbumController {
     }
   }
 
-  delete(req: Request, res: Response, next: NextFunction) {
+  async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const albumId: number = Number(req.params.id);
-      this.albumService.delete(albumId);
+      await this.albumService.delete(albumId);
       res.status(204).send();
     } catch (err) {
       console.log(err);

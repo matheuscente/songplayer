@@ -46,27 +46,27 @@ describe("testes unitários do método create do service de songAlbum", () => {
     songAlbumDB = [];
 
     //comportamento do mock
-    mockRepository.create.mockImplementation((item: ISongAlbum) => {
+    mockRepository.create.mockImplementation(async (item: ISongAlbum) => {
       songAlbumDB.push(item);
     });
   });
 
-  it("success case: deve criar uma relação", () => {
-    songService.getById.mockReturnValue({
-      songId: 1,
-      songDuration: "00:00:00",
-      songName: "teste",
-      songYear: 2000
+  it("success case: deve criar uma relação", async () => {
+    songService.getById.mockResolvedValue({
+      id: 1,
+      duration: "00:00:00",
+      name: "teste",
+      year: 2000
     });
-    albumService.getById.mockReturnValue({
-      albumId: 1,
-      albumTitle: "teste",
-      albumYear: 2000,
-      artistId: 1
+    albumService.getById.mockResolvedValue({
+      id: 1,
+      title: "teste",
+      year: 2000,
+      artist_id: 1
     });
 
-    const relation: ISongAlbum = { songId: 1, albumId: 1 };
-    service.create(relation);
+    const relation: ISongAlbum = { song_id: 1, album_id: 1 };
+    await service.create(relation);
     console.log(
       `deve criar uma relação\n
             dados passados para criação: ${JSON.stringify(relation)}
@@ -78,14 +78,14 @@ describe("testes unitários do método create do service de songAlbum", () => {
     expect(songAlbumDB.length).toBe(1);
   });
 
-  it("error case: deve dar erro pois o id de song não é um número", () => {
+  it("error case: deve dar erro pois o id de song não é um número", async () => {
     try {
       const relation: ISongAlbum = {
-        songId: "a1" as unknown as number,
-        albumId: 1,
+        song_id: "a1" as unknown as number,
+        album_id: 1,
       };
 
-      service.create(relation);
+      await service.create(relation);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -100,19 +100,19 @@ describe("testes unitários do método create do service de songAlbum", () => {
       expect(err).toBeInstanceOf(ValidationError);
       expect(songAlbumDB.length).toBe(0);
       expect((err as ValidationError).message).toBe(
-        '"songId" must be a number'
+        '"song_id" must be a number'
       );
     }
   });
 
-  it("error case: deve dar erro pois o id de album não é um número", () => {
+  it("error case: deve dar erro pois o id de album não é um número", async () => {
     try {
       const relation: ISongAlbum = {
-        songId: 1,
-        albumId: "a1" as unknown as number,
+        song_id: 1,
+        album_id: "a1" as unknown as number,
       };
 
-      service.create(relation);
+      await service.create(relation);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -127,26 +127,26 @@ describe("testes unitários do método create do service de songAlbum", () => {
       expect(err).toBeInstanceOf(ValidationError);
       expect(songAlbumDB.length).toBe(0);
       expect((err as ValidationError).message).toBe(
-        '"albumId" must be a number'
+        '"album_id" must be a number'
       );
     }
   });
 
-  it("error case: deve dar erro pois não existe song com id 1", () => {
+  it("error case: deve dar erro pois não existe song com id 1", async () => {
     try {
-      songService.getById.mockReturnValue(undefined);
-      albumService.getById.mockReturnValue({
-        albumId: 1,
-        albumTitle: "teste",
-        albumYear: 2000,
-        artistId: 1,
+      songService.getById.mockResolvedValue(undefined);
+      albumService.getById.mockResolvedValue({
+        id: 1,
+        title: "teste",
+        year: 2000,
+        artist_id: 1,
       });
       const relation: ISongAlbum = {
-        songId: 1,
-        albumId: 1,
+        song_id: 1,
+        album_id: 1,
       };
 
-      service.create(relation);
+      await service.create(relation);
 
       throw new Error("era pra retornar NotFoundError mas não retornou");
     } catch (err) {
@@ -162,21 +162,21 @@ describe("testes unitários do método create do service de songAlbum", () => {
     }
   });
 
-  it("error case: deve dar erro pois não existe album com id 1", () => {
+  it("error case: deve dar erro pois não existe album com id 1", async () => {
     try {
-      songService.getById.mockReturnValue({
-      songId: 1,
-      songDuration: "00:00:00",
-      songName: "teste",
-      songYear: 2000
+      songService.getById.mockResolvedValue({
+      id: 1,
+      duration: "00:00:00",
+      name: "teste",
+      year: 2000
     });
-      albumService.getById.mockReturnValue(undefined);
+      albumService.getById.mockResolvedValue(undefined);
       const relation: ISongAlbum = {
-        songId: 1,
-        albumId: 1,
+        song_id: 1,
+        album_id: 1,
       };
 
-      service.create(relation);
+      await service.create(relation);
 
       throw new Error("era pra retornar NotFoundError mas não retornou");
     } catch (err) {
@@ -192,28 +192,28 @@ describe("testes unitários do método create do service de songAlbum", () => {
     }
   });
 
-  it("error case: deve dar erro pois a relação já existe", () => {
+  it("error case: deve dar erro pois a relação já existe", async () => {
     try {
-      songService.getById.mockReturnValue({
-      songId: 1,
-      songDuration: "00:00:00",
-      songName: "teste",
-      songYear: 2000
+      songService.getById.mockResolvedValue({
+      id: 1,
+      duration: "00:00:00",
+      name: "teste",
+      year: 2000
     });
-      albumService.getById.mockReturnValue({
-        albumId: 1,
-        albumTitle: "teste",
-        albumYear: 2000,
-        artistId: 1,
+      albumService.getById.mockResolvedValue({
+        id: 1,
+        title: "teste",
+        year: 2000,
+        artist_id: 1,
       });
 
-      mockRepository.getById.mockReturnValue({songId: 1, albumId: 1})
+      mockRepository.getById.mockResolvedValue({song_id: 1, album_id: 1})
       const relation: ISongAlbum = {
-        songId: 1,
-        albumId: 1,
+        song_id: 1,
+        album_id: 1,
       };
 
-      service.create(relation);
+      await service.create(relation);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -229,13 +229,13 @@ describe("testes unitários do método create do service de songAlbum", () => {
     }
   });
 
-    it("error case: deve dar erro pois o song id nao foi passado", () => {
+    it("error case: deve dar erro pois o song id nao foi passado", async () => {
     try {
       const songAlbum: any = {
-        albumId: 1,
+        album_id: 1,
       };
 
-      service.create(songAlbum);
+      await service.create(songAlbum);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -249,18 +249,18 @@ describe("testes unitários do método create do service de songAlbum", () => {
 
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as ValidationError).message).toBe(
-        '"songId" is required'
+        '"song_id" is required'
       );
     }
   });
 
-    it("error case: deve dar erro pois o album id nao foi passado", () => {
+    it("error case: deve dar erro pois o album id nao foi passado", async () => {
     try {
       const songAlbum: any = {
-        songId: 1,
+        song_id: 1
       };
 
-      service.create(songAlbum);
+      await service.create(songAlbum);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -274,7 +274,7 @@ describe("testes unitários do método create do service de songAlbum", () => {
 
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as ValidationError).message).toBe(
-        '"albumId" is required'
+        '"album_id" is required'
       );
     }
   });

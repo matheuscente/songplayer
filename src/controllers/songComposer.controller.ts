@@ -7,23 +7,24 @@ class SongComposerController implements ISongComposerController {
     private songComposerService: ISongComposerService
 
     constructor(songComposerService: ISongComposerService) {
-        this.songComposerService = songComposerService
+       this.songComposerService = songComposerService
     }
 
-    create(req: Request, res: Response, next: NextFunction): void {
+    async create(req: Request, res: Response, next: NextFunction) {
         try{
-            const {composerId, songId, composition} = req.body
-            this.songComposerService.create({composerId: Number(composerId), songId: Number(songId), composition})
+            const {composer_id, song_id, composition} = req.body
+           await this.songComposerService.create({composer_id: Number(composer_id), song_id: Number(song_id), composition})
             res.status(201).json({message: "relação criada com sucesso"})
         } catch(err) {
             console.log(err);
             next(err); 
         }
     }
-    delete(req: Request, res: Response, next: NextFunction): void {
+
+    async delete(req: Request, res: Response, next: NextFunction) {
          try{
             const {composerId, songId} = req.body
-            this.songComposerService.delete(Number(songId), Number(composerId))
+           await this.songComposerService.delete(Number(songId), Number(composerId))
             res.status(204).send()
         } catch(err) {
             console.log(err);

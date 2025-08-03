@@ -41,43 +41,43 @@ describe("testes unitários do método getByComposerId do service de songCompose
   beforeEach(() => {
     songComposerDB = [
       {
-        songId: 1,
-        composerId: 1,
+        song_id: 1,
+        composer_id: 1,
         composition: 'letra'
       },
       {
-        songId: 1,
-        composerId: 2,
+        song_id: 1,
+        composer_id: 2,
         composition: 'letra'
       },
 
       {
-        songId: 2,
-        composerId: 2,
+        song_id: 2,
+        composer_id: 2,
         composition: 'letra'
       },
     ];
     //comportamento do mock
-    mockRepository.getByComposerId.mockImplementation((composerId) => {
-      return songComposerDB.filter((item) => item.composerId === composerId);
+    mockRepository.getByComposerId.mockImplementation(async (composerId) => {
+      return songComposerDB.filter((item) => item.composer_id === composerId);
     });
   });
 
-  it("success case: deve retornar a relação de acordo com o composerId: 2", () => {
+  it("success case: deve retornar a relação de acordo com o composerId: 2", async () => {
     const expected: ISongComposer[] = [
       {
-        songId: 1,
-        composerId: 2,
+        song_id: 1,
+        composer_id: 2,
         composition: 'letra'
       },
       {
-        songId: 2,
-        composerId: 2,
+        song_id: 2,
+        composer_id: 2,
         composition: 'letra'
       },
     ];
 
-    const relations = service.getByComposerId(2);
+    const relations = await service.getByComposerId(2);
     console.log(
       `deve retornar a relação de acordo com o composerId: 2\n
             dados que devem ser retornados: ${JSON.stringify(expected)}
@@ -87,9 +87,9 @@ describe("testes unitários do método getByComposerId do service de songCompose
     expect(expected).toEqual(relations);
   });
 
-  it("error case: deve dar erro pois o id passado não é um número", () => {
+  it("error case: deve dar erro pois o id passado não é um número", async () => {
     try {
-      service.getByComposerId("1a" as unknown as number);
+      await service.getByComposerId("1a" as unknown as number);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -106,8 +106,8 @@ describe("testes unitários do método getByComposerId do service de songCompose
     }
   });
 
-  it("error case: deve retornar array vazio pois a relação não existe", () => {
-    const data = service.getByComposerId(3);
+  it("error case: deve retornar array vazio pois a relação não existe", async () => {
+    const data = await service.getByComposerId(3);
     console.log(
       `deve retornar array vazio pois a relação não existe\n
             dados retornados: ${data}

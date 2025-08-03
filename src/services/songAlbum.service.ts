@@ -27,46 +27,45 @@ class SongAlbumService implements ISongAlbumService {
     this.albumService = albumService
   }
 
-  getById(songId: number, albumId: number): ISongAlbum | undefined {
-    DataValidator.validator(songAlbumSchemaValidate, {songId, albumId})
-    const data = this.songAlbumRepository.getById(songId, albumId);
-    if (!data) return undefined;
-    return data;
+  async getById(songId: number, albumId: number): Promise<ISongAlbum | undefined> {
+    DataValidator.validator(songAlbumSchemaValidate, {song_id: songId, album_id: albumId})
+    return this.songAlbumRepository.getById(songId, albumId);
+
   }
 
-  create(songAlbum: ISongAlbum): void {
-    runInTransaction(() => {
+  async create(songAlbum: ISongAlbum): Promise<void> {
+    await runInTransaction(async  () => {
 
-      const hasSong = this.songService.getById(songAlbum.songId)
-      const hasAlbum = this.albumService.getById(songAlbum.albumId)
+      const hasSong = await this.songService.getById(songAlbum.song_id)
+      const hasAlbum = await this.albumService.getById(songAlbum.album_id)
       
       if(!hasSong) throw new NotFoundError("música não existente")
       else if(!hasAlbum) throw new NotFoundError("album não existente")
 
-      const hasData = this.getById(songAlbum.songId, songAlbum.albumId)
+      const hasData = await this.getById(songAlbum.song_id, songAlbum.album_id)
       if(hasData) throw new ValidationError("relação já existente")
-      this.songAlbumRepository.create(songAlbum);
+      await this.songAlbumRepository.create(songAlbum);
     });
     
   }
 
-  delete(songId: number, albumId: number): void {
-    runInTransaction(() => {
-      const hasData = this.getById(songId, albumId)
+  async delete(songId: number, albumId: number): Promise<void> {
+    await runInTransaction(async  () => {
+      const hasData = await this.getById(songId, albumId)
       if(!hasData) throw new NotFoundError("relação não existente")
-      this.songAlbumRepository.delete(songId, albumId);
+      await this.songAlbumRepository.delete(songId, albumId);
     });
   }
 
-  getByAlbumId(albumId: number): ISongAlbum[]{
+  async getByAlbumId(albumId: number): Promise<ISongAlbum[]>{
     DataValidator.validator(idSchemaValidate, {id: albumId})
     return this.songAlbumRepository.getByAlbumId(albumId);
 
   }
-  getBySongId(songId: number):  ISongAlbum[] {
+  async getBySongId(songId: number):  Promise<ISongAlbum[]> {
     DataValidator.validator(idSchemaValidate, {id: songId})
     return this.songAlbumRepository.getBySongId(songId);
-    
+  
   }
 }
 

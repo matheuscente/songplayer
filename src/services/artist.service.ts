@@ -26,26 +26,21 @@ class ArtistService implements IArtistService {
   setDependencies(albumService: IAlbumService) {
     this.albumService = albumService;
   }
-  getAll(): IDatabaseArtist[] {
-    return this.artistRepository.getAll() as IDatabaseArtist[];
+  async getAll(): Promise<IDatabaseArtist[]> {
+    return this.artistRepository.getAll()
   }
 
-  getById(id: number): IDatabaseArtist | undefined {
+  async getById(id: number): Promise<IDatabaseArtist | undefined> {
     DataValidator.validator(idSchemaValidate, { id });
-
-    const artist = this.artistRepository.getById(id);
-    if (!artist) {
-      return undefined;
-    }
-    return artist as IDatabaseArtist;
+    return this.artistRepository.getById(id);
   }
 
-  create(item: IClientArtist): number {
+  async create(item: IClientArtist): Promise<number> {
     let artistId: number = 0;
     DataValidator.validator(artistSchemaValidate, item);
-    runInTransaction(() => {
+    await runInTransaction(async  () => {
       try {
-        artistId = this.artistRepository.create(item);
+        artistId = await this.artistRepository.create(item);
       } catch (err) {
         const errorMsg = databaseErrorTranslator(err as Error)
         if(!errorMsg) throw new InternalServerError('Ocorreu um erro interno')
@@ -56,16 +51,16 @@ class ArtistService implements IArtistService {
     return artistId;
   }
 
-  update(item: UpdateArtist): void {
+  async update(item: UpdateArtist): Promise<void> {
     DataValidator.validator(artistUpdateSchemaValidate, item);
-    runInTransaction(() => {
+    await runInTransaction(async  () => {
       try{
-        const artist = this.getById(item.artistId);
+        const artist = await this.getById(item.id);
       if (!artist) throw new NotFoundError("artista não encontrado");
-      this.artistRepository.update({
-        artistId: artist.artistId,
-        artistName: item.artistName ?? artist.artistName,
-        artistNationality: item.artistNationality ?? artist.artistNationality,
+      await this.artistRepository.update({
+        id: artist.id,
+        name: item.name ?? artist.name,
+        nationality: item.nationality ?? artist.nationality,
       });
       }  catch(err) {
         if(err instanceof NotFoundError) throw err
@@ -75,19 +70,19 @@ class ArtistService implements IArtistService {
       }
     });
   }
-  delete(id: number): void {
+  async delete(id: number): Promise<void> {
     DataValidator.validator(idSchemaValidate, { id });
-    runInTransaction(() => {
+    await runInTransaction(async  () => {
       try{
-        const artist = this.getById(id);
+        const artist = await this.getById(id);
       if (!artist) throw new NotFoundError("artista não encontrado");
-      const artistAlbum = this.albumService.getByArtistId(id);
+      const artistAlbum = await this.albumService.getByArtistId(id);
       if (artistAlbum.length >= 1) {
         throw new ValidationError(
-          `este artista tem os albums ${artistAlbum.map(album => album.albumId)}, exclua os albums ou mude de artista`
+          `este artista tem os albums ${artistAlbum.map(album => album.id)}, exclua os albums ou mude de artista`
         );
       }
-      this.artistRepository.delete(id);
+      await this.artistRepository.delete(id);
       }catch(err){
         if(err instanceof ValidationError || err instanceof NotFoundError) throw err
         const errorMsg = databaseErrorTranslator(err as Error)

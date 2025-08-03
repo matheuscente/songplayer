@@ -1,5 +1,3 @@
-import { IGetAlbumWithRelationshipService } from "../models/getAlbumsWithRelationship.model";
-import { IGetComposerWithRelationshipService } from "../models/getComposersWithRelationship.model";
 import { ISongWithComposersAndAlbums, IGetSongWithRelationshipService } from "../models/getSongsWithRelationship.model";
 import { idSchemaValidate } from "../models/global.model";
 import { IDatabaseSong, ISongService } from "../models/song.model";
@@ -9,13 +7,9 @@ import DataValidator from "../utils/dataValidator.utils";
 
 
 class SongWithRelationship implements IGetSongWithRelationshipService {
-    
-    songService!: ISongService
-    albumWithRelationship!: IGetAlbumWithRelationshipService
-    songAlbumService!: ISongAlbumService
-    songComposerService!: ISongComposerService
-    composerWithRelationship!: IGetComposerWithRelationshipService
-
+    private songService!: ISongService
+    private songAlbumService!: ISongAlbumService
+    private songComposerService!: ISongComposerService
 
     setDependencies(
     songService: ISongService,
@@ -27,39 +21,41 @@ class SongWithRelationship implements IGetSongWithRelationshipService {
         this.songComposerService = songComposerService
     }
 
-    getAll(): ISongWithComposersAndAlbums[] {
+    async getAll(): Promise<ISongWithComposersAndAlbums[]> {
         //busca todas as musicas
-        const songs: IDatabaseSong[] = this.songService.getAll()
+        const songs: IDatabaseSong[] = await this.songService.getAll()
 
         //retorna array vazio caso não existir musicas
-        if(songs.length === 0) return [] as ISongWithComposersAndAlbums[]
+        if(songs.length === 0) return []
 
         //percore array de musicas e busca suas relações
-        return songs.map((song) => {
-            return this.getById(song.songId)
-        }).filter((song) => song !== undefined)
+        const returnSongs = await Promise.all(
+            songs.map((song) => this.getById(song.id))
+        )
+
+        return returnSongs.filter((song): song is ISongWithComposersAndAlbums => song !== undefined)
     }
 
-    getById(songId: number): ISongWithComposersAndAlbums | undefined {
+    async getById(songId: number): Promise<ISongWithComposersAndAlbums | undefined>{
         DataValidator.validator(idSchemaValidate, {id: songId})
 
         //busca a musica de acordo com o id
-        const song: IDatabaseSong | undefined = this.songService.getById(songId)
+        const song: IDatabaseSong | undefined = await this.songService.getById(songId)
 
         //se não achar musica já retorna undefined
         if(!song) return undefined
 
         //busca os albums relacionados
-        const relationsAlbums: ISongAlbum[] = this.songAlbumService.getBySongId(songId)
+        const relationsAlbums: ISongAlbum[] = await this.songAlbumService.getBySongId(songId)
 
         //busca os compositores relacionados
-        const relationsComposers: ISongComposer[] = this.songComposerService.getBySongId(songId)
+        const relationsComposers: ISongComposer[] = await this.songComposerService.getBySongId(songId)
 
         //cria objeto de album de acordo com albuns relacionados
-        const albums: number[] = relationsAlbums.map((item) => item.albumId)
+        const albums: number[] = relationsAlbums.map((item) => item.album_id)
 
         //cria objeto de composer de acordo com composers relacionados
-        const composers = relationsComposers.map((item) => ({composerId: item.composerId, composition: item.composition}))
+        const composers = relationsComposers.map((item) => ({composerId: item.composer_id, composition: item.composition}))
         //retorna objeto com todas as relações
         return {...song, composers: composers, albums: albums}
 

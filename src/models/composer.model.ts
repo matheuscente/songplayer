@@ -1,5 +1,5 @@
 import { Joi } from "celebrate";
-import { ICrud, ICrudController} from "./global.model";
+import { ICrud, ICrudController, ICrudRepository} from "./global.model";
 
 export interface IClientComposer {
   name: string
@@ -13,7 +13,7 @@ export type UpdateComposer = Partial<IClientComposer> & Pick<IDatabaseComposer, 
 
 
 //interface repository
-export interface IComposerRepository extends ICrud<IClientComposer, IDatabaseComposer, UpdateComposer> {}
+export interface IComposerRepository extends ICrudRepository<IClientComposer, IDatabaseComposer, UpdateComposer> {}
 
 //interface de controller
 export interface IComposerController extends ICrudController {}

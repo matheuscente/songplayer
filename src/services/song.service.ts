@@ -22,69 +22,70 @@ class SongService implements ISongService {
 
 
 
-  getAll(): IDatabaseSong[] {
-    const songs = this.songRepository.getAll();
+  async getAll(): Promise<IDatabaseSong[]> {
+    const songs = await this.songRepository.getAll();
     songs.forEach((song) => {
-      song.songDuration = TimeConverter.millisecondsToTime(
-        song.songDuration as number
+      song.duration
+      song.duration = TimeConverter.millisecondsToTime(
+        song.duration as number
       );
     });
     return songs;
   }
-  getById(id: number): IDatabaseSong | undefined {
+  async getById(id: number): Promise<IDatabaseSong | undefined> {
     DataValidator.validator(idSchemaValidate, {id})
-    const song = this.songRepository.getById(id);
+    const song = await this.songRepository.getById(id);
     if (song) {
-      song.songDuration = TimeConverter.millisecondsToTime(
-        song.songDuration as number
+      song.duration = TimeConverter.millisecondsToTime(
+        song.duration as unknown as number
       );
       return song;
     }
     return undefined;
   }
-  create(item: IClientSong): number {
+  async create(item: IClientSong): Promise<number> {
     const songToCreate = {...item} 
     DataValidator.validator(songSchemaValidate, songToCreate)
     let songId: number = 0;
-    runInTransaction(() => {
-      if (typeof songToCreate.songDuration === "string") {
-        songToCreate.songDuration = TimeConverter.timeToMilliseconds(songToCreate.songDuration);
-      } else if (!Number.isInteger(songToCreate.songDuration)) {
+    await runInTransaction(async  () => {
+      if (typeof songToCreate.duration === "string") {
+        songToCreate.duration = TimeConverter.timeToMilliseconds(songToCreate.duration);
+      } else if (!Number.isInteger(songToCreate.duration)) {
         throw new ValidationError("duração da música inválida");
       }
 
-      songId = this.songRepository.create(songToCreate);
+      songId = await this.songRepository.create(songToCreate);
     });
     return songId;
   }
 
-  update(item: UpdateSong): void {
+  async update(item: UpdateSong): Promise<void> {
     const songToUpdate = {...item} 
     DataValidator.validator(songUpdateSchemaValidate, songToUpdate)
-    runInTransaction(() => {
-      const song = this.getById(songToUpdate.songId);
+    await runInTransaction(async  () => {
+      const song = await this.getById(songToUpdate.id);
       if (!song) throw new NotFoundError("música não encontrada");
-      if (songToUpdate.songDuration && typeof songToUpdate.songDuration === "string") {
-        songToUpdate.songDuration = TimeConverter.timeToMilliseconds(songToUpdate.songDuration);
-      } else if (songToUpdate.songDuration && !Number.isInteger(songToUpdate.songDuration)) {
+      if (songToUpdate.duration && typeof songToUpdate.duration === "string") {
+        songToUpdate.duration = TimeConverter.timeToMilliseconds(songToUpdate.duration);
+      } else if (songToUpdate.duration && !Number.isInteger(songToUpdate.duration)) {
         throw new ValidationError("duração da música inválida");
       }
       this.songRepository.update({
-        songId: song.songId,
-        songDuration:
-          songToUpdate.songDuration ??
-          TimeConverter.timeToMilliseconds(song.songDuration as string),
-        songName: songToUpdate.songName ?? song.songName,
-        songYear: songToUpdate.songYear ?? song.songYear,
+        id: song.id,
+        duration:
+          songToUpdate.duration ??
+          TimeConverter.timeToMilliseconds(song.duration as unknown as string),
+        name: songToUpdate.name ?? song.name,
+        year: songToUpdate.year ?? song.year,
       });
     });
   }
-  delete(id: number): void {
+  async delete(id: number): Promise<void> {
     DataValidator.validator(idSchemaValidate, {id})
-    runInTransaction(() => {
-      const song = this.getById(id);
+    await runInTransaction(async  () => {
+      const song = await this.getById(id);
       if (!song) throw new NotFoundError("música não encontrada");
-      this.songRepository.delete(id);
+      await this.songRepository.delete(id);
     });
   }
 }

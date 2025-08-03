@@ -15,17 +15,17 @@ class SongController implements ISongController {
     this.songService = songService;
     this.songWithRelationship = songWithRelationship
   }
-  getAll(req: Request, res: Response, next: NextFunction) {
+  async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const {relations} = req.query
       if(relations) {
         if(relations !== "true") throw new NotFoundError('parametro query inválido')
-         const data = this.songWithRelationship.getAll()
+         const data = await this.songWithRelationship.getAll()
         if(data.length === 0) throw new NotFoundError('não existem músicas')
         res.status(200).json(data)
         return
       }
-      const songs = this.songService.getAll();
+      const songs = await this.songService.getAll();
       if (songs.length === 0) throw new NotFoundError("não existem músicas");
       res.status(200).json(songs);
     } catch (err) {
@@ -34,20 +34,20 @@ class SongController implements ISongController {
     }
   }
 
-  getById(req: Request, res: Response, next: NextFunction) {
+  async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const songId: number = Number(req.params.id);
 
       const {relations} = req.query
       if(relations) {
         if(relations !== "true") throw new NotFoundError('parametro query inválido')
-         const data = this.songWithRelationship.getById(songId)
+         const data = await this.songWithRelationship.getById(songId)
         if(!data) new NotFoundError('música não existente')
 
         res.status(200).json(data)
         return
       }
-      const song = this.songService.getById(songId);
+      const song = await this.songService.getById(songId);
 
       if (!song) {
         throw new NotFoundError("música não encontrada ");
@@ -59,11 +59,11 @@ class SongController implements ISongController {
     }
   }
 
-  create(req: Request, res: Response, next: NextFunction) {
+  async create(req: Request, res: Response, next: NextFunction) {
     try {
       const song: IClientSong = req.body;
       const trimmedSong: IClientSong = trimString(song)
-      this.songService.create(trimmedSong);
+      await this.songService.create(trimmedSong);
       res.status(201).json({ message: "música criada com sucesso" });
     } catch (err) {
       console.log(err);
@@ -71,12 +71,12 @@ class SongController implements ISongController {
     }
   }
 
-  update(req: Request, res: Response, next: NextFunction) {
+  async update(req: Request, res: Response, next: NextFunction) {
     try{
       const song = req.body;
       const trimmedSong = trimString(song)
 
-      this.songService.update(trimmedSong);
+      await this.songService.update(trimmedSong);
 
       res.status(200).json({ message: "música atualizada com sucesso" });
     } catch (err) {
@@ -85,10 +85,10 @@ class SongController implements ISongController {
     }
   }
 
-  delete(req: Request, res: Response, next: NextFunction) {
+  async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const songId: number = Number(req.params.id);
-      this.songService.delete(songId);
+      await this.songService.delete(songId);
       res.status(204).send();
     } catch (err) {
       console.log(err);

@@ -1,5 +1,5 @@
 
-import {ICrud, ICrudController} from "./global.model";
+import {ICrud, ICrudController, ICrudRepository} from "./global.model";
 import { Joi } from "celebrate";
 
 
@@ -12,7 +12,7 @@ interface Song {
 //musica armarzenada no database
 export interface IDatabaseSong extends Song {
   id: number
-  duration: number
+
 }
 
 export type UpdateSong = Partial<IClientSong> & Pick<IDatabaseSong, 'id'>
@@ -20,7 +20,7 @@ export type UpdateSong = Partial<IClientSong> & Pick<IDatabaseSong, 'id'>
 
 //musica vinda do cliente
 export interface IClientSong extends Song {
-  duration: number
+
 }
 
 //interface service
@@ -30,7 +30,7 @@ export interface ISongService extends ICrud<IClientSong, IDatabaseSong, UpdateSo
 export interface ISongController extends ICrudController {}
 
 //interface do repository de musicas
-export interface ISongRepository extends ICrud<IClientSong, IDatabaseSong, UpdateSong> {}
+export interface ISongRepository extends ICrudRepository<IClientSong, IDatabaseSong, UpdateSong> {}
 
 //validação para musica vinda do cliente
 export const songSchemaValidate = Joi.object().keys({
@@ -50,7 +50,7 @@ export const songUpdateSchemaValidate = songSchemaValidate.fork(
   ['name', 'year', 'duration', 'albums'],
   (schema) => schema.optional()
 ).keys({
-  songId: Joi.number().min(1).required()
+  id: Joi.number().min(1).required()
 }).or('name', 'year', 'duration', 'albums')
  .options({ abortEarly: false });
 

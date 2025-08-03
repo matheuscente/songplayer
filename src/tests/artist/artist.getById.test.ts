@@ -10,14 +10,14 @@ describe("testes unitários do método getById do service de artist", () => {
   beforeAll(() => {
     artists = [
       {
-        artistId: 1,
-        artistName: "teste",
-        artistNationality: "teste",
+        id: 1,
+        name: "teste",
+        nationality: "teste",
       },
       {
-        artistId: 2,
-        artistName: "teste2",
-        artistNationality: "teste2",
+        id: 2,
+        name: "teste2",
+        nationality: "teste2",
       },
     ];
 
@@ -31,9 +31,9 @@ describe("testes unitários do método getById do service de artist", () => {
     };
 
     //configuração do mock
-    mockRepository.getById.mockImplementation((id) => {
+    mockRepository.getById.mockImplementation(async (id) => {
       return artists.find((artist) => {
-        return artist.artistId === id;
+        return artist.id === id;
       });
     });
 
@@ -41,9 +41,9 @@ describe("testes unitários do método getById do service de artist", () => {
     service = new ArtistService(mockRepository);
   });
 
-  it("success case: deve retornar o artista de acordo com o id", () => {
+  it("success case: deve retornar o artista de acordo com o id", async () => {
     const artist = artists[0];
-    const data = service.getById(1);
+    const data = await service.getById(1);
     console.log(
       `deve retornar o artista de acordo com o id\n
             dados repository: ${JSON.stringify(artist)}\n
@@ -53,8 +53,8 @@ describe("testes unitários do método getById do service de artist", () => {
     expect(data).toEqual(artist);
   });
 
-  it("error case: deve retornar undefined pois nao existe item no banco", () => {
-    const data = service.getById(3);
+  it("error case: deve retornar undefined pois nao existe item no banco", async () => {
+    const data = await service.getById(3);
     console.log(
       `
             error case: deve retornar undefined pois nao existe item no banco\n
@@ -64,9 +64,9 @@ describe("testes unitários do método getById do service de artist", () => {
     expect(data).toBe(undefined);
   });
 
-  it("error case: erro caso o id passado nao seja um número", () => {
+  it("error case: erro caso o id passado nao seja um número", async () => {
     try {
-      service.getById("a2" as any);
+      await service.getById("a2" as any);
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
       );

@@ -1,6 +1,8 @@
 import AlbumService from "../../services/album.service";
 import { IAlbumRepository, IDatabaseAlbum } from "../../models/album.model";
 import { ValidationError } from "../../errors/validation.error";
+import database from "../../prismaUtils/client"
+
 
 describe("testes unitários do método getById do service de album", () => {
   let service: AlbumService;
@@ -10,16 +12,16 @@ describe("testes unitários do método getById do service de album", () => {
   beforeAll(() => {
     albums = [
       {
-        albumId: 1,
-        albumTitle: "teste",
-        albumYear: 2000,
-        artistId: 1,
+        id: 1,
+        title: "teste",
+        year: 2000,
+        artist_id: 1,
       },
       {
-        albumId: 2,
-        albumTitle: "teste2",
-        albumYear: 2000,
-        artistId: 2,
+        id: 2,
+        title: "teste2",
+        year: 2000,
+        artist_id: 2,
       },
     ];
 
@@ -34,19 +36,19 @@ describe("testes unitários do método getById do service de album", () => {
     };
 
     //configuração do mock
-    mockRepository.getById.mockImplementation((id) => {
+    mockRepository.getById.mockImplementation(async (id) => {
       return albums.find((album) => {
-        return album.albumId === id;
+        return album.id === id;
       });
     });
 
     //instância de service com repositório mockado
-    service = new AlbumService(mockRepository);
+    service = new AlbumService(mockRepository, database);
   });
 
-  it("success case: deve retornar o album de acordo com o id", () => {
+  it("success case: deve retornar o album de acordo com o id", async () => {
     const album = albums[0];
-    const data = service.getById(1);
+    const data = await service.getById(1);
     console.log(
       `deve retornar o album de acordo com o id\n
             dados repository: ${JSON.stringify(album)}\n
@@ -56,8 +58,8 @@ describe("testes unitários do método getById do service de album", () => {
     expect(data).toEqual(album);
   });
 
-  it("error case: deve retornar undefined pois nao existe item no banco", () => {
-    const data = service.getById(3);
+  it("error case: deve retornar undefined pois nao existe item no banco", async () => {
+    const data = await service.getById(3);
     console.log(
       `
             error case: deve retornar undefined pois nao existe item no banco\n
@@ -67,9 +69,9 @@ describe("testes unitários do método getById do service de album", () => {
     expect(data).toBe(undefined);
   });
 
-  it("error case: erro caso o id passado nao seja um número", () => {
+  it("error case: erro caso o id passado nao seja um número", async () => {
     try {
-      service.getById("a2" as any);
+      await service.getById("a2" as any);
       throw new Error(
         "Era esperado que lançasse ValidationError, mas não lançou"
       );

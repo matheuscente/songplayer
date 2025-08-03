@@ -16,16 +16,16 @@ describe("testes unitários do método create do service de song", () => {
 
     songs = [
             {
-            songId: 1,
-            songName: 'teste',
-            songYear: 2000,
-            songDuration: 15000
+            id: 1,
+            name: 'teste',
+            year: 2000,
+            duration: 15000
         },
         {
-            songId: 2,
-            songName: 'teste2',
-            songYear: 2000,
-            songDuration: 20000
+            id: 2,
+            name: 'teste2',
+            year: 2000,
+            duration: 20000
         }
     ];
 
@@ -39,19 +39,19 @@ describe("testes unitários do método create do service de song", () => {
     };
 
     //comportamento do mock
-    mockRepository.update.mockImplementation((item: UpdateSong) => {
+    mockRepository.update.mockImplementation(async (item: UpdateSong) => {
       songs.forEach(song => {
-        if(song.songId === item.songId) {
-            song.songName = item.songName ?? song.songName,
-            song.songYear = item.songYear ?? song.songYear,
-            song.songDuration = item.songDuration ?? song.songDuration
+        if(song.id === item.id) {
+            song.name = item.name ?? song.name,
+            song.year = item.year ?? song.year,
+            song.duration = item.duration ?? song.duration
         }
       })
     });
 
-    mockRepository.getById.mockImplementation((id: number) => {
+    mockRepository.getById.mockImplementation(async (id: number) => {
         return songs.find(song => 
-            song.songId === id
+            song.id === id
         )
     })
 
@@ -59,32 +59,32 @@ describe("testes unitários do método create do service de song", () => {
     service = new SongService(mockRepository);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     songs = [
             {
-            songId: 1,
-            songName: 'teste',
-            songYear: 2000,
-            songDuration: 15000
+            id: 1,
+            name: 'teste',
+            year: 2000,
+            duration: 15000
         },
         {
-            songId: 2,
-            songName: 'teste2',
-            songYear: 2000,
-            songDuration: 20000
+            id: 2,
+            name: 'teste2',
+            year: 2000,
+            duration: 20000
         }
     ];
   })
 
-  it("success case: deve atualizar o ano do song com o id especificado", () => {
+  it("success case: deve atualizar o ano do song com o id especificado", async () => {
       const song: UpdateSong = {
-        songId: 1,
-        songYear: 2001
+        id: 1,
+        year: 2001
       }
       
       const oldSong = {...songs[0]}
 
-        service.update(song);
+        await service.update(song);
     console.log(
       `deve atualizar o ano do song com o id especificado\n
             dados passados para atualização: ${JSON.stringify(song)}
@@ -92,21 +92,21 @@ describe("testes unitários do método create do service de song", () => {
             dados após atualização: ${JSON.stringify(songs[0])}
             `
     );
-    expect(songs[0].songName).toBe(oldSong.songName);
-    expect(songs[0].songYear).toBe(2001)
-    expect(songs[0].songDuration).toBe(oldSong.songDuration)
+    expect(songs[0].name).toBe(oldSong.name);
+    expect(songs[0].year).toBe(2001)
+    expect(songs[0].duration).toBe(oldSong.duration)
 
   });
 
-  it("success case: deve atualizar o nome do song com o id especificado", () => {
+  it("success case: deve atualizar o nome do song com o id especificado", async () => {
       const song: UpdateSong = {
-        songId: 1,
-        songName: "teste UPDATE"
+        id: 1,
+        name: "teste UPDATE"
       }
       
       const oldSong = {...songs[0]}
 
-        service.update(song);
+        await service.update(song);
     console.log(
       `deve atualizar o nome do song com o id especificado\n
             dados passados para atualização: ${JSON.stringify(song)}
@@ -114,21 +114,21 @@ describe("testes unitários do método create do service de song", () => {
             dados após atualização: ${JSON.stringify(songs[0])}
             `
     );
-    expect(songs[0].songName).toBe('teste UPDATE');
-    expect(songs[0].songYear).toBe(oldSong.songYear)
-    expect(songs[0].songDuration).toBe(oldSong.songDuration)
+    expect(songs[0].name).toBe('teste UPDATE');
+    expect(songs[0].year).toBe(oldSong.year)
+    expect(songs[0].duration).toBe(oldSong.duration)
 
   });
 
-  it("success case: deve atualizar a duração do song com o id especificado", () => {
+  it("success case: deve atualizar a duração do song com o id especificado", async () => {
       const song: UpdateSong = {
-        songId: 1,
-        songDuration: "00:03:00"
+        id: 1,
+        duration: "00:03:00"
       }
       
       const oldSong = {...songs[0]}
 
-        service.update(song);
+        await service.update(song);
     console.log(
       `deve atualizar a duração do song com o id especificado\n
             dados passados para atualização: ${JSON.stringify(song)}
@@ -136,23 +136,23 @@ describe("testes unitários do método create do service de song", () => {
             dados após atualização: ${JSON.stringify(songs[0])}
             `
     );
-    expect(songs[0].songName).toBe(oldSong.songName);
-    expect(songs[0].songYear).toBe(oldSong.songYear)
-    expect(songs[0].songDuration).toBe(TimeConverter.timeToMilliseconds(song.songDuration as string))
+    expect(songs[0].name).toBe(oldSong.name);
+    expect(songs[0].year).toBe(oldSong.year)
+    expect(songs[0].duration).toBe(TimeConverter.timeToMilliseconds(song.duration as string))
 
   });
 
-   it("success case: deve atualizar todos os dados do song com o id especificado", () => {
+   it("success case: deve atualizar todos os dados do song com o id especificado", async () => {
       const song: UpdateSong = {
-        songId: 1,
-        songDuration: "00:03:00",
-        songName: "teste UPDATE",
-        songYear: 2001
+        id: 1,
+        duration: "00:03:00",
+        name: "teste UPDATE",
+        year: 2001
       }
       
       const oldSong = {...songs[0]}
 
-        service.update(song);
+        await service.update(song);
     console.log(
       `deve atualizar a duração do song com o id especificado\n
             dados passados para atualização: ${JSON.stringify(song)}
@@ -160,15 +160,15 @@ describe("testes unitários do método create do service de song", () => {
             dados após atualização: ${JSON.stringify(songs[0])}
             `
     );
-    expect(songs[0].songName).toBe(song.songName);
-    expect(songs[0].songYear).toBe(song.songYear)
-    expect(songs[0].songDuration).toBe(TimeConverter.timeToMilliseconds(song.songDuration as string))
+    expect(songs[0].name).toBe(song.name);
+    expect(songs[0].year).toBe(song.year)
+    expect(songs[0].duration).toBe(TimeConverter.timeToMilliseconds(song.duration as string))
 
   });
 
-    it("error case: deve dar erro por receber um song sem propriedades", () => {
+    it("error case: deve dar erro por receber um song sem propriedades", async () => {
       try {
-        service.update({songId: 1} as any);
+        await service.update({id: 1} as any);
         throw new Error(
           "Era esperado que lançasse ValidationError, mas não lançou"
         );
@@ -181,14 +181,14 @@ describe("testes unitários do método create do service de song", () => {
         );
         expect(err).toBeInstanceOf(ValidationError);
         expect((err as Error).message).toEqual(
-          '"value" must contain at least one of [songName, songYear, songDuration, albums]'
+          '"value" must contain at least one of [name, year, duration, albums]'
         );
       }
     });
   
-    it("error case: deve dar erro por receber um song com propriedade inválida", () => {
+    it("error case: deve dar erro por receber um song com propriedade inválida", async () => {
       try {
-        service.update({ songId: 1, songName: "teste Update", invalidField: "true!" } as any);
+        await service.update({ id: 1, name: "teste Update", invalidField: "true!" } as any);
         throw new Error(
           "Era esperado que lançasse ValidationError, mas não lançou"
         );
@@ -204,9 +204,9 @@ describe("testes unitários do método create do service de song", () => {
       }
     });
   
-    it("error case: deve dar erro por receber um song com nome como number", () => {
+    it("error case: deve dar erro por receber um song com nome como number", async () => {
       try {
-        service.update({songId: 1, songName: 1} as any);
+        await service.update({id: 1, name: 1} as any);
         throw new Error(
           "Era esperado que lançasse ValidationError, mas não lançou"
         );
@@ -218,17 +218,17 @@ describe("testes unitários do método create do service de song", () => {
               `
         );
         expect(err).toBeInstanceOf(ValidationError);
-        expect((err as Error).message).toEqual('"songName" must be a string');
+        expect((err as Error).message).toEqual('"name" must be a string');
       }
     });
 
     
   
-    it("error case: deve dar erro por receber um song com ano como string", () => {
+    it("error case: deve dar erro por receber um song com ano como string", async () => {
       try {
-        service.update({
-          songId: 1,
-          songYear: "2000a",
+        await service.update({
+          id: 1,
+          year: "2000a",
         } as any);
         throw new Error(
           "Era esperado que lançasse ValidationError, mas não lançou"
@@ -241,15 +241,15 @@ describe("testes unitários do método create do service de song", () => {
               `
         );
         expect(err).toBeInstanceOf(ValidationError);
-        expect((err as Error).message).toEqual('"songYear" must be a number');
+        expect((err as Error).message).toEqual('"year" must be a number');
       }
     });
   
-    it("error case: deve dar erro por receber um song com duração inválida", () => {
+    it("error case: deve dar erro por receber um song com duração inválida", async () => {
       try {
-        service.update({
-          songId: 1,
-          songDuration: "invalid"
+        await service.update({
+          id: 1,
+          duration: "invalid"
         } as any);
         throw new Error(
           "Era esperado que lançasse ValidationError, mas não lançou"
@@ -266,11 +266,11 @@ describe("testes unitários do método create do service de song", () => {
       }
     });
   
-    it("error case: deve dar erro por receber ano maior que ano atual", () => {
+    it("error case: deve dar erro por receber ano maior que ano atual", async () => {
       try {
-        service.update({
-          songId: 1,
-          songYear: 2026
+        await service.update({
+          id: 1,
+          year: 2026
         } as any);
         throw new Error(
           "Era esperado que lançasse ValidationError, mas não lançou"
@@ -283,15 +283,15 @@ describe("testes unitários do método create do service de song", () => {
               `
         );
         expect(err).toBeInstanceOf(ValidationError);
-        expect((err as Error).message).toEqual('"songYear" must be less than or equal to 2025');
+        expect((err as Error).message).toEqual('"year" must be less than or equal to 2025');
       }
     });
 
-    it("error case: deve dar erro por receber id sem ser number", () => {
+    it("error case: deve dar erro por receber id sem ser number", async () => {
       try {
-        service.update({
-          songId: "a1",
-          songYear: 2025
+        await service.update({
+          id: "a1",
+          year: 2025
         } as any);
         throw new Error(
           "Era esperado que lançasse ValidationError, mas não lançou"
@@ -304,7 +304,7 @@ describe("testes unitários do método create do service de song", () => {
               `
         );
         expect(err).toBeInstanceOf(ValidationError);
-        expect((err as Error).message).toEqual('"songId" must be a number');
+        expect((err as Error).message).toEqual('"id" must be a number');
       }
     });
 });

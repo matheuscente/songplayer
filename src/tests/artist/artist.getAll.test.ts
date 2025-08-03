@@ -7,17 +7,17 @@ describe('testes unitários do método getAll do service de artist', () => {
     let mockRepository: jest.Mocked<IArtistRepository>
     let artists: IDatabaseArtist[]
 
-    beforeAll(() => {
+    beforeAll( () => {
         artists = [
             {
-            artistId: 1,
-            artistName: 'teste',
-            artistNationality: 'teste'
+            id: 1,
+            name: 'teste',
+            nationality: 'teste'
         },
         {
-            artistId: 2,
-            artistName: 'teste2',
-            artistNationality: 'teste2'
+            id: 2,
+            name: 'teste2',
+            nationality: 'teste2'
         }
     ];
 
@@ -35,9 +35,9 @@ describe('testes unitários do método getAll do service de artist', () => {
         service = new ArtistService(mockRepository)
     })
 
-    it('success case: deve retornar o todos os artistas', () => {
-        mockRepository.getAll.mockReturnValue(artists)
-        const data = service.getAll()
+    it('success case: deve retornar o todos os artistas', async () => {
+        mockRepository.getAll.mockResolvedValue(artists)
+        const data = await await service.getAll()
         console.log(
             `deve retornar todos os artistas\n
             dados repository: ${JSON.stringify(artists)}\n
@@ -48,9 +48,9 @@ describe('testes unitários do método getAll do service de artist', () => {
         expect(data).toEqual(artists)
     })
 
-    it('success case: deve retornar array vazio pois nao existe item no banco', () => {
-        mockRepository.getAll.mockReturnValue([])
-        const data = service.getAll()
+    it('success case: deve retornar array vazio pois nao existe item no banco', async () => {
+        mockRepository.getAll.mockResolvedValue([])
+        const data = await service.getAll()
         console.log(
             `
             deve retornar array vazio pois nao existe item no banco\n

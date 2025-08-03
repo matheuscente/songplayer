@@ -1,6 +1,5 @@
-import Database from "better-sqlite3"
 import { IAlbumRepository, IAlbumService, IClientAlbum } from "../../../models/album.model"
-import { IArtistRepository, IArtistService } from "../../../models/artist.model"
+import { IArtistRepository, IArtistService, IClientArtist } from "../../../models/artist.model"
 import { IComposerRepository, IComposerService } from "../../../models/composer.model"
 import { IAlbumWithArtistAndSongs, IGetAlbumWithRelationshipService } from "../../../models/getAlbumsWithRelationship.model"
 import { IArtistWithAlbums, IGetArtistWithRelationshipService } from "../../../models/getArtistsWithRelationship.model"
@@ -25,20 +24,21 @@ import SongService from "../../../services/song.service"
 import SongAlbumService from "../../../services/songAlbum.service"
 import SongComposerService from "../../../services/songComposer.service"
 import SongWithRelationship from "../../../services/songWithRelationship.service"
-import { DbManager } from "../../../repositories/database/database.utils"
 import { ValidationError } from "../../../errors/validation.error"
 import TimeConverter from "../../../utils/timeConverter.utils"
+import database from "../../../prismaUtils/client"
 
-describe('testes de integração de album com suas relações',() => {
-    const dbManager = new DbManager()
-    const database: Database.Database = new Database(":memory:")
+jest.setTimeout(20000);
+
+
+describe('testes de integração de album com suas relações', () => {
     const albumRepository: IAlbumRepository = new AlbumRepository(database)
     const songRepository: ISongRepository = new SongRepository(database)
     const artistRepository: IArtistRepository  = new ArtistRepository(database)
     const composerRepository: IComposerRepository = new ComposerRepository(database)
     const songAlbumRepository: ISongAlbumRepository = new SongAlbumRepository(database)
     const songComposerRepository: ISongComposerRepository = new SongComposerRepository(database)
-    const albumService: IAlbumService = new AlbumService(albumRepository);
+    const albumService: IAlbumService = new AlbumService(albumRepository, database);
     const artistService: IArtistService = new ArtistService(artistRepository);
     const songService: ISongService = new SongService(songRepository);
     const composerService: IComposerService = new ComposerService(composerRepository);
@@ -48,21 +48,23 @@ describe('testes de integração de album com suas relações',() => {
     const songWithRelationshipService: IGetSongWithRelationshipService = new SongWithRelationship();
     const composerWithRelationshipService: IGetComposerWithRelationshipService = new ComposerWithRelationship();
     const artistWithRelationshipService: IGetArtistWithRelationshipService = new ArtistWithRelationship();
-    const artist1 = {artistName: "teste", artistNationality: "teste"}
-    const song1: IClientSong = {songName: "teste", songYear: 2000, songDuration: "00:02:00"}
-     const song2: IClientSong = {songName: "teste 2", songYear: 2000, songDuration: "00:03:00"}
-     const song3: IClientSong = {songName: "teste 3", songYear: 2000, songDuration: "00:04:00"}
-     const album1: IClientAlbum = {albumTitle: "teste", albumYear: 2000, artistId: 1}
-     const album2: IClientAlbum = {albumTitle: "teste 2", albumYear: 2000, artistId: 1} 
+    const artist1: IClientArtist = {name: "teste", nationality: "teste"}
+    const song1: IClientSong = {name: "teste", year: 2000, duration: "00:02:00"}
+     const song2: IClientSong = {name: "teste 2", year: 2000, duration: "00:03:00"}
+     const song3: IClientSong = {name: "teste 3", year: 2000, duration: "00:04:00"}
+     const album1: IClientAlbum = {title: "teste", year: 2000, artist_id: 1}
+     const album2: IClientAlbum = {title: "teste 2", year: 2000, artist_id: 1} 
      const albumDuration = (a: string, b: string, c:string): string => {
         let value: number = TimeConverter.timeToMilliseconds(a) + TimeConverter.timeToMilliseconds(b) + TimeConverter.timeToMilliseconds(c)
         return TimeConverter.millisecondsToTime(value)
     }
     let artist: IArtistWithAlbums | undefined
-    beforeAll(() => {
-        database.pragma('journal_mode = WAL')
-        database.pragma('foreign_keys = ON')
-        dbManager.createAllTables(database)
+    beforeAll( async() => {
+          await database.artists.deleteMany({});
+            await database.albums.deleteMany({});
+            await database.songs.deleteMany({});
+            await database.song_album.deleteMany({});
+            await database.song_composer.deleteMany({});
 
          albumService.setDependencies(artistService);
 
@@ -76,50 +78,54 @@ describe('testes de integração de album com suas relações',() => {
 
         composerWithRelationshipService.setDependencies(composerService, songComposerService)
 
-        artistService.create(artist1)
+        await artistService.create(artist1)
 
-        albumService.create(album1)
-        albumService.create(album2)
+        await albumService.create(album1)
+        await albumService.create(album2)
 
-        songService.create(song1)
-        songService.create(song2)
-        songService.create(song3)
+        await songService.create(song1)
+        await songService.create(song2)
+        await songService.create(song3)
 
         songAlbumService.setDependencies(songService, albumService)
 
-        songAlbumService.create({albumId: 1, songId: 1})
-        songAlbumService.create({albumId: 1, songId: 2})
-        songAlbumService.create({albumId: 2, songId: 3})
-        songAlbumService.create({albumId: 2, songId: 2})
+        await songAlbumService.create({album_id: 1, song_id: 1})
+        await songAlbumService.create({album_id: 1, song_id: 2})
+        await songAlbumService.create({album_id: 2, song_id: 3})
+        await songAlbumService.create({album_id: 2, song_id: 2})
 
-        artist = artistWithRelationshipService.getById(1)
+        artist = await artistWithRelationshipService.getById(1)
 
     })
 
-    it('success case: busca todos os albuns com seus artistas e musicas correspondentes', () => {
+        afterAll(async () => {
+    await database.$disconnect()
+});
+
+    it('success case: busca todos os albuns com seus artistas e musicas correspondentes',  async() => {
         if(!artist) throw new Error('erro no artista')
         
         const expected: IAlbumWithArtistAndSongs[] = [
             {
-                albumId: 1,
+                id: 1,
                 ...album1,
                 songs: [1, 2],
                 artist: artist,
-                albumDuration: albumDuration("00:02:00", "00:03:00", "00:00:00"),
-                songsNumber: 2
+                duration: albumDuration("00:02:00", "00:03:00", "00:00:00"),
+                songs_number: 2
             },
 
             {
-                albumId: 2,
+                id: 2,
                 ...album2,
                 songs: [3, 2],
                 artist: artist,
-                albumDuration: albumDuration("00:00:00", "00:03:00", "00:04:00"),
-                songsNumber: 2
+                duration: albumDuration("00:00:00", "00:03:00", "00:04:00"),
+                songs_number: 2
             }
         ]
         
-        const albums: IAlbumWithArtistAndSongs[] = albumWithRelationshipService.getAll()
+        const albums: IAlbumWithArtistAndSongs[] = await albumWithRelationshipService.getAll()
 
         console.log(`
                     esperado: ${JSON.stringify(expected)}
@@ -132,21 +138,21 @@ describe('testes de integração de album com suas relações',() => {
     })
 
 
-    it('success case: deve retornar album de acordo com seu id', () => {
+    it('success case: deve retornar album de acordo com seu id',  async() => {
         if(!artist) throw new Error('erro no artista')
 
         const expected: IAlbumWithArtistAndSongs = 
             {
-                albumId: 1,
+                id: 1,
                 ...album1,
                 songs: [1, 2],
                 artist: artist,
-                albumDuration: albumDuration("00:02:00", "00:03:00", "00:00:00"),
-                songsNumber: 2
+                duration: albumDuration("00:02:00", "00:03:00", "00:00:00"),
+                songs_number: 2
             }
         
         
-        const album: IAlbumWithArtistAndSongs | undefined = albumWithRelationshipService.getById(1)
+        const album: IAlbumWithArtistAndSongs | undefined = await albumWithRelationshipService.getById(1)
 
         console.log(`
                     esperado: ${JSON.stringify(expected)}
@@ -157,11 +163,11 @@ describe('testes de integração de album com suas relações',() => {
 
     })
 
-    it('error case: deve dar erro pois id passado não é um number ', () => {
+    it('error case: deve dar erro pois id passado não é um number ',  async() => {
         
         try
         {
-            albumWithRelationshipService.getById('1a' as any)
+            await albumWithRelationshipService.getById('1a' as any)
 
             throw new Error('era para lançar ValidationError mas não lançou')
         } catch(err) {
@@ -178,13 +184,13 @@ describe('testes de integração de album com suas relações',() => {
 
     })
 
-    it('error case: deve dar undefined pois não tem album com o id 1 no banco ', () => {
+    it('error case: deve dar undefined pois não tem album com o id 1 no banco ',  async() => {
         albumService.delete(1)
-        const songAlbum = songAlbumService.getByAlbumId(1)
+        const songAlbum = await songAlbumService.getByAlbumId(1)
 
-        const albums = albumWithRelationshipService.getAll()
+        const albums = await albumWithRelationshipService.getAll()
 
-         const album = albumWithRelationshipService.getById(1)
+         const album = await albumWithRelationshipService.getById(1)
 
         console.log(`
                     deve retornar undefined
@@ -196,11 +202,11 @@ describe('testes de integração de album com suas relações',() => {
         expect(songAlbum.length).toBe(0)
     })
 
-    it('error case: deve retornar array vazio pois não possuem albuns no banco ', () => {
-        albumService.delete(2)
-        const songAlbum = songAlbumService.getByAlbumId(2)
+    it('error case: deve retornar array vazio pois não possuem albuns no banco ',  async() => {
+        await albumService.delete(2)
+        const songAlbum = await songAlbumService.getByAlbumId(2)
 
-         const albums = albumWithRelationshipService.getAll()
+         const albums = await albumWithRelationshipService.getAll()
 
         console.log(`
                     deve retornar array vazio

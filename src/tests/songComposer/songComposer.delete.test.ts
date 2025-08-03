@@ -10,7 +10,7 @@ import SongComposerService from "../../services/songComposer.service";
 import { ValidationError } from "../../errors/validation.error";
 import { NotFoundError } from "../../errors/not-found.error";
 
-describe("testes unitários do método delete do service de songComposer", () => {
+describe("testes unitários do método delete do service de songComposer",() => {
 
     let songComposerDB: ISongComposer[]
   const mockRepository: jest.Mocked<ISongComposerRepository> = {
@@ -43,34 +43,34 @@ describe("testes unitários do método delete do service de songComposer", () =>
   beforeEach(() => {
        songComposerDB = [
     {
-        songId: 1,
-        composerId: 1,
+        song_id: 1,
+        composer_id: 1,
         composition: 'letra'
   },
   {
-    songId: 1,
-    composerId: 2,
+    song_id: 1,
+    composer_id: 2,
     composition: 'letra'
   }
 ]
     //comportamento do mock
-    mockRepository.getById.mockImplementation((songId, ComposerId) => {
+    mockRepository.getById.mockImplementation(async (songId, ComposerId) => {
       return songComposerDB.find(item => 
-        item.composerId === ComposerId && item.songId === songId
+        item.composer_id === ComposerId && item.song_id === songId
       ) 
     });
 
-    mockRepository.delete.mockImplementation((songId, composerId) => {
-        const indexItem = songComposerDB.findIndex(item => item.composerId === composerId && item.songId === songId)
+    mockRepository.delete.mockImplementation(async (songId, composerId) => {
+        const indexItem = songComposerDB.findIndex(item => item.composer_id === composerId && item.song_id === songId)
         if(indexItem === -1) throw new NotFoundError('relação não existente')
         songComposerDB.splice(indexItem, 1)
     })
   });
 
-  it("success case: deve deletar a relação de acordo com o songId e composerId", () => {
+  it("success case: deve deletar a relação de acordo com o songId e composerId", async () => {
     const deletedData = {...songComposerDB[0]}
-    const songComposer: ISongComposer = { songId: 1, composerId: 1 , composition: 'letra'};
-    service.delete(songComposer.songId, songComposer.composerId);
+    const songComposer: ISongComposer = { song_id: 1, composer_id: 1 , composition: 'letra'};
+    await service.delete(songComposer.song_id, songComposer.composer_id);
     console.log(
       `deve deletar a relação de acordo com o songId e composerId\n
             dados passados para deleção: ${JSON.stringify(songComposer)}
@@ -82,15 +82,15 @@ describe("testes unitários do método delete do service de songComposer", () =>
     expect(songComposerDB.length).toBe(1)
   });
 
-   it("error case: deve dar erro pois o id de composer não é um número", () => {
+   it("error case: deve dar erro pois o id de composer não é um número", async () => {
     try {
       const songComposer: ISongComposer = {
-        songId: 1,
-        composerId: "a1" as unknown as number,
+        song_id: 1,
+        composer_id: "a1" as unknown as number,
         composition: 'letra'
       };
 
-      service.delete(songComposer.songId, songComposer.composerId);
+      await service.delete(songComposer.song_id, songComposer.composer_id);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -104,20 +104,20 @@ describe("testes unitários do método delete do service de songComposer", () =>
 
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as ValidationError).message).toBe(
-        '"composerId" must be a number'
+        '"composer_id" must be a number'
       );
     }
   });
 
-  it("error case: deve dar erro pois o id de song não é um número", () => {
+  it("error case: deve dar erro pois o id de song não é um número", async () => {
     try {
       const songComposer: ISongComposer = {
-        songId: "a1" as unknown as number,
-        composerId: 1,
+        song_id: "a1" as unknown as number,
+        composer_id: 1,
         composition: 'letra'
       };
 
-      service.delete(songComposer.songId, songComposer.composerId);
+      await service.delete(songComposer.song_id, songComposer.composer_id);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -131,21 +131,21 @@ describe("testes unitários do método delete do service de songComposer", () =>
 
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as ValidationError).message).toBe(
-        '"songId" must be a number'
+        '"song_id" must be a number'
       );
     }
   });
 
-  it("error case: deve retornar erro pois a relação não existe", () => {
+  it("error case: deve retornar erro pois a relação não existe", async () => {
     try {
          songComposerDB.splice(0,1)
       const songComposer: ISongComposer = {
-        songId: 1,
-        composerId: 1,
+        song_id: 1,
+        composer_id: 1,
         composition: 'letra'
       };
 
-      service.delete(songComposer.songId, songComposer.composerId);
+      await service.delete(songComposer.song_id, songComposer.composer_id);
     } catch(err) {
         console.log(
         `deve retornar undefined pois a relação não existe\n
@@ -161,13 +161,13 @@ describe("testes unitários do método delete do service de songComposer", () =>
 
   });
 
-  it("error case: deve dar erro pois o song id nao foi passado", () => {
+  it("error case: deve dar erro pois o song id nao foi passado", async () => {
     try {
       const songComposer: any = {
-        composerId: 1,
+        composer_id: 1,
       };
 
-      service.delete(songComposer.songId, songComposer.composerId);
+      await service.delete(songComposer.songId, songComposer.composer_id);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -181,18 +181,18 @@ describe("testes unitários do método delete do service de songComposer", () =>
 
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as ValidationError).message).toBe(
-        '"songId" is required'
+        '"song_id" is required'
       );
     }
   });
 
-    it("error case: deve dar erro pois o composer id nao foi passado", () => {
+    it("error case: deve dar erro pois o composer id nao foi passado", async () => {
     try {
       const songComposer: any = {
-        songId: 1,
+        song_Id: 1,
       };
 
-      service.delete(songComposer.songId, songComposer.ComposerId);
+      await service.delete(songComposer.song_Id, songComposer.ComposerId);
 
       throw new Error("era pra retornar ValidationError mas não retornou");
     } catch (err) {
@@ -206,7 +206,7 @@ describe("testes unitários do método delete do service de songComposer", () =>
 
       expect(err).toBeInstanceOf(ValidationError);
       expect((err as ValidationError).message).toBe(
-        '"composerId" is required'
+        '"composer_id" is required'
       );
     }
   });

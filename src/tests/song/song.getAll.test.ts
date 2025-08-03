@@ -10,16 +10,16 @@ describe('testes unitários do método getAll do service de song', () => {
     beforeAll(() => {
         songs = [
             {
-            songId: 1,
-            songName: 'teste',
-            songYear: 2000,
-            songDuration: 150000
+            id: 1,
+            name: 'teste',
+            year: 2000,
+            duration: 150000
         },
         {
-            songId: 2,
-            songName: 'teste2',
-            songYear: 2000,
-            songDuration: 20000
+            id: 2,
+            name: 'teste2',
+            year: 2000,
+            duration: 20000
         }
     ];
 
@@ -38,10 +38,10 @@ describe('testes unitários do método getAll do service de song', () => {
         service = new SongService(mockRepository)
     })
 
-    it('success case: deve retornar o todos os songs', () => {
-        mockRepository.getAll.mockReturnValue([...songs])
+    it('success case: deve retornar o todos os songs', async () => {
+        mockRepository.getAll.mockResolvedValue([...songs])
 
-        const data = service.getAll()
+        const data = await service.getAll()
         console.log(
             `deve retornar todos os songs\n
             dados repository: ${JSON.stringify(songs)}\n
@@ -52,9 +52,9 @@ describe('testes unitários do método getAll do service de song', () => {
         expect(data).toEqual(songs)
     })
 
-    it('success case: deve retornar array vazio pois nao existe item no banco', () => {
-        mockRepository.getAll.mockReturnValue([])
-        const data = service.getAll()
+    it('success case: deve retornar array vazio pois nao existe item no banco', async () => {
+        mockRepository.getAll.mockResolvedValue([])
+        const data = await service.getAll()
         console.log(
             `
             deve retornar array vazio pois nao existe item no banco\n

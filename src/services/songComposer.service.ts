@@ -29,51 +29,48 @@ class SongComposerService implements ISongComposerService {
     this.composerService = composerService
   }
   
-  getById(songId: number, composerId: number): ISongComposer | undefined {
-    DataValidator.validator(songComposerGetByIdSchemaValidate, {songId, composerId})
-    const data = this.songComposerRepository.getById(songId, composerId);
-    if (!data) return undefined;
-    return data;
+  async getById(songId: number, composerId: number): Promise<ISongComposer | undefined> {
+    DataValidator.validator(songComposerGetByIdSchemaValidate, {song_id: songId, composer_id: composerId})
+    return this.songComposerRepository.getById(songId, composerId);
+
   }
 
-  create(songComposer: ISongComposer): void {
+  async create(songComposer: ISongComposer): Promise<void> {
     DataValidator.validator(songComposerSchemaValidate, songComposer)
-    runInTransaction(() => {
+    await runInTransaction(async  () => {
 
-      const hasSong = this.songService.getById(songComposer.songId)
-      const hasComposer = this.composerService.getById(songComposer.composerId)
+      const hasSong = await this.songService.getById(songComposer.song_id)
+      const hasComposer = await this.composerService.getById(songComposer.composer_id)
 
       if(!hasSong) throw new NotFoundError("música não existente")
       else if(!hasComposer) throw new NotFoundError("compositor não existente")
 
       if(!songComposer.composition) throw new NotFoundError('informe a composição')
 
-      const hasData = this.getById(songComposer.songId, songComposer.composerId)
+      const hasData = await this.getById(songComposer.song_id, songComposer.composer_id)
 
       if(hasData) throw new ValidationError("relação já existente")
         
-      this.songComposerRepository.create(songComposer);
+      await this.songComposerRepository.create(songComposer);
     });
   }
 
-  delete(songId: number, composerId: number): void {
-    runInTransaction(() => {
-      const relationship = this.getById(songId, composerId)
+  async delete(songId: number, composerId: number): Promise<void> {
+    await runInTransaction(async  () => {
+      const relationship = await this.getById(songId, composerId)
       if(!relationship) throw new NotFoundError('relação não existente')
-      this.songComposerRepository.delete(songId, composerId);
+      await this.songComposerRepository.delete(songId, composerId);
     });
   }
 
-  getByComposerId(composerId: number): ISongComposer[] {
+  async getByComposerId(composerId: number): Promise<ISongComposer[]> {
     DataValidator.validator(idSchemaValidate, {id: composerId})
-    const data = this.songComposerRepository.getByComposerId(composerId);
-    return data
+    return this.songComposerRepository.getByComposerId(composerId);
   }
 
-  getBySongId(songId: number): ISongComposer[] {
+  async getBySongId(songId: number): Promise<ISongComposer[]> {
     DataValidator.validator(idSchemaValidate, {id: songId})
-    const data = this.songComposerRepository.getBySongId(songId);
-    return data
+    return this.songComposerRepository.getBySongId(songId)
   }
 }
 

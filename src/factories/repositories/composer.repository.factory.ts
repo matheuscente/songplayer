@@ -1,5 +1,6 @@
 import ComposerRepository from "../../repositories/composer.repository";
-import database from "../../database";
+import database from "../../prismaUtils/client";
+
 
 const composerRepository: ComposerRepository = new ComposerRepository(database)
 

@@ -11,16 +11,16 @@ describe("testes unitários do método delete do service de song", () => {
   beforeEach(() => {
         songs = [
             {
-            songId: 1,
-            songName: 'teste',
-            songYear: 2000,
-            songDuration: 150
+            id: 1,
+            name: 'teste',
+            year: 2000,
+            duration: 150
         },
         {
-            songId: 2,
-            songName: 'teste2',
-            songYear: 2000,
-            songDuration: 200
+            id: 2,
+            name: 'teste2',
+            year: 2000,
+            duration: 200
         }
     ];
 
@@ -39,41 +39,41 @@ describe("testes unitários do método delete do service de song", () => {
     service = new SongService(mockRepository);
 
     //comportamento do mock repository
-    mockRepository.getById.mockImplementation((id: number) => {
-      const song = songs.find((song) => song.songId === id);
+    mockRepository.getById.mockImplementation(async (id: number) => {
+      const song = songs.find((song) => song.id === id);
 
       if (!song) return undefined;
 
       return song;
     });
 
-    mockRepository.delete.mockImplementation((id: number) => {
-      const index = songs.findIndex((song) => song.songId === id);
+    mockRepository.delete.mockImplementation(async (id: number) => {
+      const index = songs.findIndex((song) => song.id === id);
       songs.splice(index, 1);
     });
   });
 
-  afterEach(() => {
+  afterEach(async () => {
       songs = [
             {
-            songId: 1,
-            songName: 'teste',
-            songYear: 2000,
-            songDuration: 15000
+            id: 1,
+            name: 'teste',
+            year: 2000,
+            duration: 15000
         },
         {
-            songId: 2,
-            songName: 'teste2',
-            songYear: 2000,
-            songDuration: 20000
+            id: 2,
+            name: 'teste2',
+            year: 2000,
+            duration: 20000
         }
     ];
 
   });
 
-  it("success: deve deletar um song de acordo com o id", () => {
+  it("success: deve deletar um song de acordo com o id", async () => {
     const oldRepo = [...songs];
-    service.delete(1);
+    await service.delete(1);
 
     console.log(`
             deve deletar um song de acordo com o id
@@ -84,17 +84,17 @@ describe("testes unitários do método delete do service de song", () => {
     expect(songs.length).toBe(1);
     expect(songs).toEqual([
       {
-            songId: 2,
-            songName: 'teste2',
-            songYear: 2000,
-            songDuration: 200
+            id: 2,
+            name: 'teste2',
+            year: 2000,
+            duration: 200
         },
     ]);
   });
 
-  it("error case: deve dar erro caso id não seja number", () => {
+  it("error case: deve dar erro caso id não seja number", async () => {
     try {
-      service.delete('1a' as any);
+      await service.delete('1a' as any);
     } catch (err) {
       console.log(
         `deve dar erro caso id não seja number\n
@@ -108,9 +108,9 @@ describe("testes unitários do método delete do service de song", () => {
     }
   });
 
-  it("error case: deve dar erro caso song não exista", () => {
+  it("error case: deve dar erro caso song não exista", async () => {
     try {
-      service.delete(3);
+      await service.delete(3);
     } catch (err) {
       console.log(
         `error case: deve dar erro caso song não exista\n

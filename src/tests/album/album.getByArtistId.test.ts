@@ -1,6 +1,8 @@
 import AlbumService from "../../services/album.service";
 import { IAlbumRepository, IDatabaseAlbum } from "../../models/album.model";
 import { ValidationError } from "../../errors/validation.error";
+import database from "../../prismaUtils/client"
+
 
 describe('testes unitários do método getByArtistId do service de album', () => {
     let service: AlbumService
@@ -10,16 +12,16 @@ describe('testes unitários do método getByArtistId do service de album', () =>
     beforeAll(() => {
         albums = [
             {
-            albumId: 1,
-            albumTitle: 'teste',
-            albumYear: 2000,
-            artistId: 1
+            id: 1,
+            title: 'teste',
+            year: 2000,
+            artist_id: 1
         },
         {
-            albumId: 2,
-            albumTitle: 'teste2',
-            albumYear: 2000,
-            artistId: 2
+            id: 2,
+            title: 'teste2',
+            year: 2000,
+            artist_id: 2
         }
     ];
 
@@ -34,21 +36,21 @@ describe('testes unitários do método getByArtistId do service de album', () =>
         }
 
         //configuração do mock
-        mockRepository.getByArtistId.mockImplementation((id) => {
+        mockRepository.getByArtistId.mockImplementation(async (id) => {
             return albums.map((album) => {
-                if(album.artistId === id) return album
+                if(album.artist_id === id) return album
                 else return
             }).filter((item) => item !== undefined)
         })
 
 
         //instância de service com repositório mockado
-        service = new AlbumService(mockRepository)
+        service = new AlbumService(mockRepository, database)
     })
 
-    it('success case: deve retornar o album de acordo com o artistId', () => {
+    it('success case: deve retornar o album de acordo com o artistId', async () => {
         const album = albums[0]
-        const data = service.getByArtistId(1)
+        const data = await service.getByArtistId(1)
         console.log(
             `deve retornar o album de acordo com o artistId\n
             dados repository: ${JSON.stringify(album)}\n
@@ -59,9 +61,9 @@ describe('testes unitários do método getByArtistId do service de album', () =>
         expect(data).toEqual([album])
     })
 
-    it('error case: deve retornar undefined pois nao existe item no banco com artistId = 3', () => {
+    it('error case: deve retornar undefined pois nao existe item no banco com artistId = 3', async () => {
         
-        const data = service.getByArtistId(3)
+        const data = await service.getByArtistId(3)
         console.log(
             `
             deve retornar undefined pois nao existe item no banco com artistId = 3\n
@@ -72,9 +74,9 @@ describe('testes unitários do método getByArtistId do service de album', () =>
         expect(data).toEqual([] as IDatabaseAlbum[])
     })
 
-    it('error case: erro caso o id passado nao seja um número', () => {
+    it('error case: erro caso o id passado nao seja um número', async () => {
             try{
-                service.getByArtistId('a2' as any);
+                await service.getByArtistId('a2' as any);
                 throw new Error('Era esperado que lançasse ValidationError, mas não lançou');            }catch(err) {
                 console.log('error case: erro caso o id passado nao seja um número\n', `dados retornados ${(err as Error).message}`);
                 expect(err).toBeInstanceOf(ValidationError);

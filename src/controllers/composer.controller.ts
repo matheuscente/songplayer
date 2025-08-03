@@ -11,17 +11,17 @@ class ComposerController implements IComposerController {
     this.composerService = composerService;
     this.composerWithRelationship = composerWithRelationship
   }
-  getAll(req: Request, res: Response, next: NextFunction) {
+  async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const {relations} = req.query
       if(relations) {
         if(relations !== "true") throw new NotFoundError('parametro query inválido')
-         const data = this.composerWithRelationship.getAll()
+         const data = await this.composerWithRelationship.getAll()
         if(data.length === 0) throw new NotFoundError('não existem compositores')
         res.status(200).json(data)
         return
       }
-      const composers = this.composerService.getAll();
+      const composers = await this.composerService.getAll();
       if (composers.length === 0) throw new NotFoundError("não existem compositores");
       res.status(200).json(composers);
     } catch (err) {
@@ -30,18 +30,18 @@ class ComposerController implements IComposerController {
     }
   }
 
-  getById(req: Request, res: Response, next: NextFunction) {
+  async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const composerId: number = Number(req.params.id);
       const {relations} = req.query
       if(relations) {
         if(relations !== "true") throw new NotFoundError('parametro query inválido')
-         const data = this.composerWithRelationship.getById(composerId)
+         const data = await this.composerWithRelationship.getById(composerId)
         if(!data) new NotFoundError('compositor não existente')
         res.status(200).json(data)
         return
       }
-      const composer = this.composerService.getById(composerId);
+      const composer = await this.composerService.getById(composerId);
 
       if (!composer) {
         throw new NotFoundError("compositor não encontrado ");
@@ -53,11 +53,11 @@ class ComposerController implements IComposerController {
     }
   }
 
-  create(req: Request, res: Response, next: NextFunction) {
+  async create(req: Request, res: Response, next: NextFunction) {
     try {
       const composer: IClientComposer = req.body;
       const trimmedComposer = trimString(composer)
-      this.composerService.create(trimmedComposer);
+      await this.composerService.create(trimmedComposer);
       res.status(201).json({ message: "compositor criado com sucesso" });
     } catch (err) {
       console.log(err);
@@ -65,12 +65,12 @@ class ComposerController implements IComposerController {
     }
   }
 
-  update(req: Request, res: Response, next: NextFunction) {
+  async update(req: Request, res: Response, next: NextFunction) {
     try {
       const composer = req.body;
       const trimmedComposer = trimString(composer)
 
-      this.composerService.update(trimmedComposer);
+      await this.composerService.update(trimmedComposer);
 
       res.status(200).json({ message: "compositor atualizada com sucesso" });
     } catch (err) {
@@ -79,10 +79,10 @@ class ComposerController implements IComposerController {
     }
   }
 
-  delete(req: Request, res: Response, next: NextFunction) {
+  async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const composerId: number = Number(req.params.id);
-      this.composerService.delete(composerId);
+      await this.composerService.delete(composerId);
       res.status(204).send();
     } catch (err) {
       console.log(err);

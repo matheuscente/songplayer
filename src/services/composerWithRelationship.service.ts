@@ -6,8 +6,8 @@ import DataValidator from "../utils/dataValidator.utils";
 
 
 class ComposerWithRelationship implements IGetComposerWithRelationshipService {
-    composerService!: IComposerService
-    songComposerService!: ISongComposerService
+    private composerService!: IComposerService
+    private songComposerService!: ISongComposerService
 
     setDependencies(
         composerService: IComposerService,
@@ -17,29 +17,31 @@ class ComposerWithRelationship implements IGetComposerWithRelationshipService {
         this.songComposerService = songComposerService
     }
 
-    getAll(): IComposerWithSongs[] {
+    async getAll(): Promise<IComposerWithSongs[]> {
 
-        const composers = this.composerService.getAll()
+        const composers = await this.composerService.getAll()
 
-        if(composers.length === 0) return [] as IComposerWithSongs[]
+        if(composers.length === 0) return []
 
-        return composers.map((composer) => {
-            return this.getById(composer.composerId)
-        }).filter((composer) => composer !== undefined)
+        const returnComposers = await Promise.all(
+             composers.map((composer) => this.getById(composer.id))
+        )
+
+        return returnComposers.filter((item): item is IComposerWithSongs => item !== undefined)
     }
     
-    getById(composerId: number): IComposerWithSongs | undefined {
+    async getById(composerId: number): Promise<IComposerWithSongs | undefined> {
         DataValidator.validator(idSchemaValidate, {id: composerId})
 
-        const composer = this.composerService.getById(composerId)
+        const composer = await this.composerService.getById(composerId)
 
         if(!composer) return undefined
 
-        const relations: ISongComposer[] = this.songComposerService.getByComposerId(composerId)
+        const relations: ISongComposer[] = await this.songComposerService.getByComposerId(composerId)
 
         if(relations.length === 0) return {...composer, songs: []}
         
-        const songs = relations.map((item) => ({song: item.songId, composition: item.composition}))
+        const songs = relations.map((item) => ({song: item.song_id, composition: item.composition}))
 
         return {...composer, songs}
     }

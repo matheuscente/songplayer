@@ -16,8 +16,8 @@ export interface IGetAlbumWithRelationshipService {
         albumService: IAlbumService,
         songAlbumService: ISongAlbumService,
         songService: ISongService):void,
-    getAll(): IAlbumWithArtistAndSongs[]
-    getById(composerId: number): IAlbumWithArtistAndSongs | undefined
+    getAll(): Promise<IAlbumWithArtistAndSongs[]>
+    getById(composerId: number): Promise<IAlbumWithArtistAndSongs | undefined>
 }
 
 export interface IGetAlbumWithRelationshipController {

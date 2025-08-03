@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client"
 import {ISongAlbumRepository, ISongAlbum} from "../models/songAlbum.model"
+import { PrismaTransactionClient } from "../models/global.model"
 
 class SongAlbumRepository implements ISongAlbumRepository {
     constructor(private readonly database: PrismaClient) {}
@@ -9,12 +10,12 @@ class SongAlbumRepository implements ISongAlbumRepository {
         return data
     }
 
-    async create(songAlbum: ISongAlbum): Promise<void> {
-        await this.database.song_album.create({data: songAlbum})
+    async create(songAlbum: ISongAlbum, tx: PrismaTransactionClient): Promise<void> {
+        await tx.song_album.create({data: songAlbum})
     }
 
-    async delete(songId: number, albumId: number): Promise<void> {
-        await this.database.song_album.delete({where: {song_id_album_id: {song_id: songId, album_id: albumId}}})
+    async delete(songId: number, albumId: number, tx: PrismaTransactionClient): Promise<void> {
+        await tx.song_album.delete({where: {song_id_album_id: {song_id: songId, album_id: albumId}}})
     }
     async getByAlbumId(albumId: number): Promise<ISongAlbum[]> {
         return this.database.song_album.findMany({where: {album_id: albumId}})

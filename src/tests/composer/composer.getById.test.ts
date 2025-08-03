@@ -10,12 +10,12 @@ describe('testes unitários do método getById do service de composer', () => {
     beforeAll(() => {
         composers = [
             {
-            composerId: 1,
-            composerName: 'teste'
+            id: 1,
+            name: 'teste'
         },
         {
-            composerId: 2,
-            composerName: 'teste2'
+            id: 2,
+            name: 'teste2'
         }
     ];
 
@@ -29,9 +29,9 @@ describe('testes unitários do método getById do service de composer', () => {
         }
 
         //configuração do mock
-        mockRepository.getById.mockImplementation((id) => {
+        mockRepository.getById.mockImplementation(async (id) => {
             return composers.find((composer) => {
-                return composer.composerId === id
+                return composer.id === id
             })
         })
 
@@ -40,9 +40,9 @@ describe('testes unitários do método getById do service de composer', () => {
         service = new ComposerService(mockRepository)
     })
 
-    it('success case: deve retornar o composer de acordo com o id', () => {
+    it('success case: deve retornar o composer de acordo com o id', async () => {
         const composer = composers[0]
-        const data = service.getById(1)
+        const data = await service.getById(1)
         console.log(
             `deve retornar o composera de acordo com o id\n
             dados repository: ${JSON.stringify(composer)}\n
@@ -53,9 +53,9 @@ describe('testes unitários do método getById do service de composer', () => {
         expect(data).toEqual(composer)
     })
 
-    it('error case: deve retornar undefined pois nao existe item no banco', () => {
+    it('error case: deve retornar undefined pois nao existe item no banco', async () => {
         
-        const data = service.getById(3)
+        const data = await service.getById(3)
         console.log(
             `
             error case: deve retornar undefined pois nao existe item no banco\n
@@ -66,9 +66,9 @@ describe('testes unitários do método getById do service de composer', () => {
         expect(data).toBe(undefined)
     })
 
-        it('error case: erro caso o id passado nao seja um número', () => {
+        it('error case: erro caso o id passado nao seja um número', async () => {
             try{
-                service.getById('a2' as any);
+                await service.getById('a2' as any);
                 throw new Error('Era esperado que lançasse ValidationError, mas não lançou');            }catch(err) {
                 console.log('error case: erro caso o id passado nao seja um número\n', `dados retornados ${(err as Error).message}`);
                 expect(err).toBeInstanceOf(ValidationError);

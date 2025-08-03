@@ -6,8 +6,8 @@ import { idSchemaValidate } from "../models/global.model";
 import DataValidator from "../utils/dataValidator.utils";
 
 class ArtistWithRelationship implements IGetArtistWithRelationshipService {
-    artistService!: IArtistService
-    albumService!: IAlbumService
+    private artistService!: IArtistService
+    private albumService!: IAlbumService
 
     setDependencies(
     artistService: IArtistService,
@@ -17,32 +17,33 @@ class ArtistWithRelationship implements IGetArtistWithRelationshipService {
         this.albumService = albumService
     }
 
-    getAll(): IArtistWithAlbums[] {
+    async getAll(): Promise<IArtistWithAlbums[]> {
 
-        const artists = this.artistService.getAll()
+        const artists = await this.artistService.getAll()
 
-        if(artists.length === 0) return [] as IArtistWithAlbums[]
+        if(artists.length === 0) return []
 
-        return artists.map((artist) => {
-            return this.getById(artist.artistId)
-           
-        }).filter((item) => item !== undefined)
+        const returnArtists = await Promise.all(
+            artists.map((artist) => this.getById(artist.id))
+        )
+        
+        return returnArtists.filter((item): item is IArtistWithAlbums => item !== undefined)
         
     }
 
-    getById(artistId: number): IArtistWithAlbums | undefined {
+    async getById(artistId: number): Promise<IArtistWithAlbums | undefined> {
         DataValidator.validator(idSchemaValidate, {id: artistId})
 
-        const artist = this.artistService.getById(artistId)
+        const artist = await this.artistService.getById(artistId)
 
         if(!artist) return undefined
 
         //retorna todos os albums relacionados com o artista
-        const albums = this.albumService.getByArtistId(artistId)
+        const albums = await this.albumService.getByArtistId(artistId)
 
         if(albums.length === 0) return {...artist, albums: []}
 
-        const albumsIds: number[] = albums.map((album) => album.albumId)
+        const albumsIds: number[] = albums.map((album) => album.id)
 
         return {...artist, albums: albumsIds}
     }

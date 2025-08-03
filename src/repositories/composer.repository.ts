@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { IComposerRepository, IClientComposer, IDatabaseComposer } from "../models/composer.model";
+import { PrismaTransactionClient } from "../models/global.model";
 class ComposerRepository implements IComposerRepository {
     constructor(private readonly database: PrismaClient) {
         this.database = database
@@ -9,19 +10,19 @@ class ComposerRepository implements IComposerRepository {
         return this.database.composers.findMany() as Promise<IDatabaseComposer[]>
     }
     async getById(id: number): Promise<IDatabaseComposer | undefined> {
-        const composer =  this.database.composers.findUnique({where: {id}})
+        const composer = await this.database.composers.findUnique({where: {id}})
             if(!composer) return undefined
-            return composer as Promise<IDatabaseComposer>
+            return composer
     }
-    async create(composer: IClientComposer): Promise<number> {
-        const data = await this.database.composers.create({data: composer})
+    async create(composer: IClientComposer, tx: PrismaTransactionClient): Promise<number> {
+        const data = await tx.composers.create({data: composer})
         return Number(data)
     }
-    async update(composer: IDatabaseComposer): Promise<void> {
-        await this.database.composers.update({data: composer, where: {id: composer.id}})
+    async update(composer: IDatabaseComposer, tx: PrismaTransactionClient): Promise<void> {
+        await tx.composers.update({data: composer, where: {id: composer.id}})
     }
-    async delete(id: number): Promise<void> {
-        await this.database.composers.delete({where: {id}})
+    async delete(id: number, tx: PrismaTransactionClient): Promise<void> {
+        await tx.composers.delete({where: {id}})
 }
 }
 

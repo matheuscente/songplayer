@@ -12,8 +12,8 @@ export interface IGetComposerWithRelationshipService {
         composerService: IComposerService,
         songComposerService: ISongComposerService,
     ): void
-    getAll(): IComposerWithSongs[]
-    getById(composerId: number): IComposerWithSongs | undefined
+    getAll(): Promise<IComposerWithSongs[]>
+    getById(composerId: number): Promise<IComposerWithSongs | undefined>
 }
 
 export interface IGetComposerWithRelationshipController {

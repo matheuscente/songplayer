@@ -2,7 +2,6 @@ import AlbumService from "../../services/album.service";
 import { IAlbumRepository, IDatabaseAlbum } from "../../models/album.model";
 import { ValidationError } from "../../errors/validation.error";
 import { NotFoundError } from "../../errors/not-found.error";
-import database from "../../prismaUtils/client"
 
 describe("testes unitários do método delete do service de album", () => {
   let service: AlbumService;
@@ -38,7 +37,7 @@ albums = [
    
 
     //instância de service com repositório mockado
-    service = new AlbumService(mockRepository, database);
+    service = new AlbumService(mockRepository);
 
     //comportamento do mock repository
     mockRepository.getById.mockImplementation(async (id: number) => {

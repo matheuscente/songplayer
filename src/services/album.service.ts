@@ -14,7 +14,7 @@ import { IArtistService } from "../models/artist.model";
 import { idSchemaValidate, PrismaTransactionClient } from "../models/global.model";
 import databaseErrorTranslator from "../utils/dataBaseErrorTransaltor";
 import DataValidator from "../utils/dataValidator.utils";
-import runInTransaction from "../utils/runInTransactionB.utils";
+import runInTransaction from "../utils/runInTransaction.utils";
 
 class AlbumService implements IAlbumService {
   private readonly albumRepository: IAlbumRepository;
@@ -38,9 +38,7 @@ class AlbumService implements IAlbumService {
   }
   async getById(id: number, tx?: PrismaTransactionClient): Promise<IDatabaseAlbum | undefined> {
     DataValidator.validator(idSchemaValidate, {id})
-    const album = this.albumRepository.getById(id, tx);
-    if (!album) return undefined;
-    return album
+    return await this.albumRepository.getById(id, tx);
   }
 
   async create(item: IClientAlbum): Promise<number> {
@@ -50,7 +48,7 @@ class AlbumService implements IAlbumService {
     try {
       
       albumId =  await runInTransaction(async (tx) => {
-        const artist = await this.artistService.getById(item.artist_id);
+        const artist = await this.artistService.getById(item.artist_id, tx);
       if (!artist) throw new NotFoundError("artista não encontrado");
        return await this.albumRepository.create(item, tx);
       })
@@ -58,7 +56,7 @@ class AlbumService implements IAlbumService {
     }  catch (err) {
 
         if(err instanceof NotFoundError) throw err
-        const errorMsg = databaseErrorTranslator(err as Error)
+        const errorMsg = databaseErrorTranslator(err)
         if(!errorMsg) throw new InternalServerError('Ocorreu um erro interno')
           throw new ValidationError(errorMsg)
       }
@@ -69,10 +67,10 @@ class AlbumService implements IAlbumService {
   async update(item: UpdateAlbum): Promise<void> {
     DataValidator.validator(albumUpdateSchemaValidate, item)
     await runInTransaction(async  (tx) => {
-      const album = await this.getById(item.id);
+      const album = await this.getById(item.id, tx);
       if (album) {
         if (item.artist_id) {
-          const hasArtist = await this.artistService.getById(item.artist_id);
+          const hasArtist = await this.artistService.getById(item.artist_id, tx);
           if (!hasArtist) throw new NotFoundError("artista não encontrado");
         }
 
@@ -91,7 +89,7 @@ class AlbumService implements IAlbumService {
   async delete(id : number): Promise<void> {
     DataValidator.validator(idSchemaValidate, {id})
     await runInTransaction(async  (tx) => {
-      const album = await this.getById(id);
+      const album = await this.getById(id, tx);
       if (!album) throw new NotFoundError("album não encontrado");
       await this.albumRepository.delete(id, tx);
     });

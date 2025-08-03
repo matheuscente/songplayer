@@ -1,8 +1,8 @@
 {
 	"info": {
-		"_postman_id": "6685829d-baa7-42ff-9e23-f94d5cb58167",
+		"_postman_id": "60269661-d3aa-411a-b5aa-26d7d26d8c96",
 		"name": "player",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
 		"_exporter_id": "39198253"
 	},
 	"item": [
@@ -16,27 +16,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"artistNationality\": \"teste\",\r\n    \"artistName\": \"teste\"\r\n}",
+							"raw": "{\r\n    \"nationality\": \"teste\",\r\n    \"name\": \"teste\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/api/v1/artist/",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"api",
-								"v1",
-								"artist",
-								""
-							]
-						}
+						"url": "http://localhost:3000/api/v1/artist/"
 					},
 					"response": []
 				},
@@ -104,25 +91,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"artistId\": 1,\r\n    \"artistNationality\": \"teste Update\"\r\n}",
+							"raw": "{\r\n    \"id\": 1,\r\n    \"nationality\": \"teste Update\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "localhost:3000/api/v1/artist",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"api",
-								"v1",
-								"artist"
-							]
-						}
+						"url": "localhost:3000/api/v1/artist"
 					},
 					"response": []
 				},
@@ -131,20 +107,7 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/api/v1/artist/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"api",
-								"v1",
-								"artist",
-								"1"
-							]
-						}
+						"url": "http://localhost:3000/api/v1/artist/1"
 					},
 					"response": []
 				}
@@ -160,27 +123,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"songYear\": 2000,\r\n    \"songName\": \"teste\",\r\n    \"songDuration\": \"00:02:00\"\r\n}",
+							"raw": "{\r\n    \"year\": 2000,\r\n    \"name\": \"teste\",\r\n    \"duration\": \"00:02:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/api/v1/song/",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"api",
-								"v1",
-								"song",
-								""
-							]
-						}
+						"url": "http://localhost:3000/api/v1/song/"
 					},
 					"response": []
 				},
@@ -248,26 +198,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"songId\": 1,\r\n    \"songName\": \"teste Update\"\r\n\r\n}",
+							"raw": "{\r\n    \"id\": 1,\r\n    \"name\": \"teste Update\"\r\n\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/api/v1/song",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"api",
-								"v1",
-								"song"
-							]
-						}
+						"url": "http://localhost:3000/api/v1/song"
 					},
 					"response": []
 				},
@@ -276,20 +214,7 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/api/v1/song/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"api",
-								"v1",
-								"song",
-								"1"
-							]
-						}
+						"url": "http://localhost:3000/api/v1/song/2"
 					},
 					"response": []
 				}
@@ -305,27 +230,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"albumTitle\": \"teste\",\r\n    \"albumYear\": 2000,\r\n    \"artistId\": 1\r\n}",
+							"raw": "{\r\n    \"title\": \"teste\",\r\n    \"year\": 2000,\r\n    \"artist_id\": 1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/api/v1/album/",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"api",
-								"v1",
-								"album",
-								""
-							]
-						}
+						"url": "http://localhost:3000/api/v1/album/"
 					},
 					"response": []
 				},
@@ -393,25 +305,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"albumId\": 1,\r\n    \"albumTitle\": \"teste update\"\r\n}",
+							"raw": "{\r\n    \"id\": 1,\r\n    \"title\": \"teste update\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "localhost:3000/api/v1/album",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"api",
-								"v1",
-								"album"
-							]
-						}
+						"url": "localhost:3000/api/v1/album"
 					},
 					"response": []
 				},
@@ -420,20 +321,7 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/api/v1/album/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"api",
-								"v1",
-								"album",
-								"1"
-							]
-						}
+						"url": "http://localhost:3000/api/v1/album/1"
 					},
 					"response": []
 				}
@@ -449,27 +337,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"composerName\": \"teste\"\r\n}",
+							"raw": "{\r\n    \"name\": \"teste\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/api/v1/composer/",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"api",
-								"v1",
-								"composer",
-								""
-							]
-						}
+						"url": "http://localhost:3000/api/v1/composer/"
 					},
 					"response": []
 				},
@@ -535,20 +410,7 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/api/v1/composer/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"api",
-								"v1",
-								"composer",
-								"1"
-							]
-						}
+						"url": "http://localhost:3000/api/v1/composer/1"
 					},
 					"response": []
 				},
@@ -559,27 +421,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"composerId\": 1,\r\n    \"composerName\": \"teste Update\"\r\n}",
+							"raw": "{\r\n    \"id\": 1,\r\n    \"name\": \"teste Update\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/api/v1/composer/",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"api",
-								"v1",
-								"composer",
-								""
-							]
-						}
+						"url": "http://localhost:3000/api/v1/composer/"
 					},
 					"response": []
 				}
@@ -595,27 +444,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"albumId\": 1,\r\n    \"songId\": 1\r\n}",
+							"raw": "{\r\n    \"album_id\": 1,\r\n    \"song_id\": 1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/api/v1/songAlbum/",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"api",
-								"v1",
-								"songAlbum",
-								""
-							]
-						}
+						"url": "http://localhost:3000/api/v1/songAlbum/"
 					},
 					"response": []
 				},
@@ -626,27 +462,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"albumId\": 1,\r\n    \"songId\": 1\r\n}",
+							"raw": "{\r\n    \"album_id\": 2,\r\n    \"song_id\": 2\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/api/v1/songAlbum/",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"api",
-								"v1",
-								"songAlbum",
-								""
-							]
-						}
+						"url": "http://localhost:3000/api/v1/songAlbum/"
 					},
 					"response": []
 				}
@@ -662,27 +485,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"composerId\": 1,\r\n    \"songId\": 1,\r\n    \"composition\": \"letra\"\r\n}",
+							"raw": "{\r\n    \"composer_id\": 1,\r\n    \"song_id\": 2,\r\n    \"composition\": \"melodia\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/api/v1/songComposer/",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"api",
-								"v1",
-								"songComposer",
-								""
-							]
-						}
+						"url": "http://localhost:3000/api/v1/songComposer/"
 					},
 					"response": []
 				},
@@ -693,27 +503,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"albumId\": 1,\r\n    \"songId\": 1\r\n}",
+							"raw": "{\r\n    \"album_id\": 1,\r\n    \"song_id\": 1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "http://localhost:3000/api/v1/songAlbum/",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"api",
-								"v1",
-								"songAlbum",
-								""
-							]
-						}
+						"url": "http://localhost:3000/api/v1/songAlbum/"
 					},
 					"response": []
 				}

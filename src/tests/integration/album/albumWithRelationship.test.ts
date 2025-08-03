@@ -27,8 +27,9 @@ import SongWithRelationship from "../../../services/songWithRelationship.service
 import { ValidationError } from "../../../errors/validation.error"
 import TimeConverter from "../../../utils/timeConverter.utils"
 import database from "../../../prismaUtils/client"
-
-jest.setTimeout(20000);
+import { execSync } from "child_process"
+import { existsSync, unlinkSync } from "fs"
+import path from "path"
 
 
 describe('testes de integração de album com suas relações', () => {
@@ -38,7 +39,7 @@ describe('testes de integração de album com suas relações', () => {
     const composerRepository: IComposerRepository = new ComposerRepository(database)
     const songAlbumRepository: ISongAlbumRepository = new SongAlbumRepository(database)
     const songComposerRepository: ISongComposerRepository = new SongComposerRepository(database)
-    const albumService: IAlbumService = new AlbumService(albumRepository, database);
+    const albumService: IAlbumService = new AlbumService(albumRepository);
     const artistService: IArtistService = new ArtistService(artistRepository);
     const songService: ISongService = new SongService(songRepository);
     const composerService: IComposerService = new ComposerService(composerRepository);
@@ -59,12 +60,14 @@ describe('testes de integração de album com suas relações', () => {
         return TimeConverter.millisecondsToTime(value)
     }
     let artist: IArtistWithAlbums | undefined
+    const pathDatabase = path.resolve(__dirname, "../../../../test.db");
+    
     beforeAll( async() => {
-          await database.artists.deleteMany({});
-            await database.albums.deleteMany({});
-            await database.songs.deleteMany({});
-            await database.song_album.deleteMany({});
-            await database.song_composer.deleteMany({});
+        if(existsSync(pathDatabase)) {
+            unlinkSync(pathDatabase)
+        }
+        execSync("npx prisma db push", { stdio: "inherit" });
+
 
          albumService.setDependencies(artistService);
 
@@ -185,7 +188,7 @@ describe('testes de integração de album com suas relações', () => {
     })
 
     it('error case: deve dar undefined pois não tem album com o id 1 no banco ',  async() => {
-        albumService.delete(1)
+        await albumService.delete(1)
         const songAlbum = await songAlbumService.getByAlbumId(1)
 
         const albums = await albumWithRelationshipService.getAll()

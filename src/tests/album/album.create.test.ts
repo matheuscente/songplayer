@@ -1,5 +1,4 @@
 import AlbumService from "../../services/album.service";
-import database from "../../prismaUtils/client"
 import {
   IAlbumRepository,
   IClientAlbum,
@@ -67,7 +66,7 @@ describe("testes unitários do método create do service de album", () => {
     });
 
     //instância de service com repositório mockado
-    service = new AlbumService(mockRepository, database);
+    service = new AlbumService(mockRepository);
     service.setDependencies(artistService)
 
   });

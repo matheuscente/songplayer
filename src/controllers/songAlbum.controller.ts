@@ -12,8 +12,8 @@ class SongAlbumController implements ISongAlbumController {
 
     async create(req: Request, res: Response, next: NextFunction) {
         try{
-            const {albumId, songId} = req.body
-            await this.songAlbumService.create({album_id: Number(albumId), song_id: Number(songId)})
+            const {album_id, song_id} = req.body
+            await this.songAlbumService.create({album_id: Number(album_id), song_id: Number(song_id)})
             res.status(201).json({message: "relação criada com sucesso"})
         } catch(err) {
             console.log(err);

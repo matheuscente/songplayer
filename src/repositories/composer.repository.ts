@@ -6,11 +6,11 @@ class ComposerRepository implements IComposerRepository {
         this.database = database
     }
 
-    async getAll(): Promise<IDatabaseComposer[]> {
-        return this.database.composers.findMany() as Promise<IDatabaseComposer[]>
+    async getAll(tx = this.database): Promise<IDatabaseComposer[]> {
+        return tx.composers.findMany() as Promise<IDatabaseComposer[]>
     }
-    async getById(id: number): Promise<IDatabaseComposer | undefined> {
-        const composer = await this.database.composers.findUnique({where: {id}})
+    async getById(id: number, tx = this.database): Promise<IDatabaseComposer | undefined> {
+        const composer = await tx.composers.findUnique({where: {id}})
             if(!composer) return undefined
             return composer
     }

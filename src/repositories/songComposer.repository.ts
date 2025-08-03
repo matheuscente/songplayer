@@ -5,8 +5,8 @@ import { PrismaTransactionClient } from "../models/global.model";
 class SongComposerRepository implements ISongComposerRepository {
     constructor(private readonly database: PrismaClient) {}
     
-    async getById(songId: number, composerId: number): Promise<ISongComposer | undefined> {
-        const data = await this.database.song_composer.findUnique({where: {song_id_composer_id: {song_id: songId, composer_id: composerId}}})
+    async getById(songId: number, composerId: number, tx = this.database): Promise<ISongComposer | undefined> {
+        const data = await tx.song_composer.findUnique({where: {song_id_composer_id: {song_id: songId, composer_id: composerId}}})
             if(!data) return undefined
             return data
     }
@@ -17,11 +17,11 @@ class SongComposerRepository implements ISongComposerRepository {
     async delete(songId: number, composerId: number, tx: PrismaTransactionClient): Promise<void> {
         await tx.song_composer.delete({where: {song_id_composer_id: {song_id: songId, composer_id: composerId}}})
     }
-    async getByComposerId(composerId: number): Promise<ISongComposer[]> {
-        return this.database.song_composer.findMany({where: {composer_id: composerId}})
+    async getByComposerId(composerId: number, tx = this.database): Promise<ISongComposer[]> {
+        return tx.song_composer.findMany({where: {composer_id: composerId}})
     }
-    async getBySongId(songId: number): Promise<ISongComposer[]> {
-        return this.database.song_composer.findMany({where: {song_id: songId}})
+    async getBySongId(songId: number, tx = this.database): Promise<ISongComposer[]> {
+        return tx.song_composer.findMany({where: {song_id: songId}})
     }
 
 }

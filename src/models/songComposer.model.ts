@@ -24,18 +24,18 @@ export interface ISongComposerController {
 //interface de service
 export interface ISongComposerService{
     setDependencies(songService: ISongService, composerService: IComposerService): void
-    getById(songId: number, composerId: number): Promise<ISongComposer |  undefined>,
-    getByComposerId(composerId: number): Promise<ISongComposer[]>,
-    getBySongId(songId: number): Promise<ISongComposer[]>,
+    getById(songId: number, composerId: number, tx?: PrismaTransactionClient): Promise<ISongComposer |  undefined>,
+    getByComposerId(composerId: number, tx?: PrismaTransactionClient): Promise<ISongComposer[]>,
+    getBySongId(songId: number, tx?: PrismaTransactionClient): Promise<ISongComposer[]>,
     create(songComposer: ISongComposer): Promise<void>,
     delete(songId: number, composerId: number): Promise<void>,
 }
 
 //interface de repository
 export interface ISongComposerRepository {
-    getById(songId: number, composerId: number): Promise<ISongComposer | undefined>,
-    getByComposerId(composerId: number): Promise<ISongComposer[]>,
-    getBySongId(songId: number): Promise<ISongComposer[]>,
+    getById(songId: number, composerId: number, tx?: PrismaTransactionClient): Promise<ISongComposer | undefined>,
+    getByComposerId(composerId: number, tx?: PrismaTransactionClient): Promise<ISongComposer[]>,
+    getBySongId(songId: number, tx?: PrismaTransactionClient): Promise<ISongComposer[]>,
     create(songComposer: ISongComposer, tx: PrismaTransactionClient): Promise<void>,
     delete(songId: number, composerId: number, tx: PrismaTransactionClient): Promise<void>
 }

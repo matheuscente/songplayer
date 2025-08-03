@@ -1,7 +1,5 @@
 import AlbumService from "../../services/album.service";
 import { IAlbumRepository, IDatabaseAlbum } from "../../models/album.model";
-import database from "../../prismaUtils/client"
-
 
 
 describe('testes unitários do método getAll do service de album', () => {
@@ -37,7 +35,7 @@ describe('testes unitários do método getAll do service de album', () => {
 
 
         //instância de service com repositório mockado
-        service = new AlbumService(mockRepository, database)
+        service = new AlbumService(mockRepository)
     })
 
     it('success case: deve retornar o todos os albums', async () => {

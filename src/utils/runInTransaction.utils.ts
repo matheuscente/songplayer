@@ -1,4 +1,12 @@
-import prisma from "../prismaUtils/client"
-export async function runInTransaction<T>(fn: () => Promise<T | void>): Promise<T | void> {
-  return prisma.$transaction(() => fn());
+import { Prisma } from "@prisma/client";
+import database from "../prismaUtils/client"
+
+async function runInTransaction<T>(
+  fn: (tx: Prisma.TransactionClient) => Promise<T>
+): Promise<T> {
+  return database.$transaction(async (tx) => {
+    return fn(tx);
+  });
 }
+
+export default runInTransaction

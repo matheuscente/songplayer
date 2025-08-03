@@ -27,15 +27,17 @@ import SongWithRelationship from "../../../services/songWithRelationship.service
 import { ValidationError } from "../../../errors/validation.error"
 import database from "../../../prismaUtils/client"
 import { execSync } from "child_process"
-
-describe('testes de integração de song com suas relações', async () => {
+import { existsSync, unlinkSync } from "fs"
+import path from "path"
+ 
+describe('testes de integração de song com suas relações', () => {
     const albumRepository: IAlbumRepository = new AlbumRepository(database)
     const songRepository: ISongRepository = new SongRepository(database)
     const artistRepository: IArtistRepository  = new ArtistRepository(database)
     const composerRepository: IComposerRepository = new ComposerRepository(database)
     const songAlbumRepository: ISongAlbumRepository = new SongAlbumRepository(database)
     const songComposerRepository: ISongComposerRepository = new SongComposerRepository(database)
-    const albumService: IAlbumService = new AlbumService(albumRepository, database);
+    const albumService: IAlbumService = new AlbumService(albumRepository);
     const artistService: IArtistService = new ArtistService(artistRepository);
     const songService: ISongService = new SongService(songRepository);
     const composerService: IComposerService = new ComposerService(composerRepository);
@@ -53,8 +55,14 @@ describe('testes de integração de song com suas relações', async () => {
      const song1: IClientSong = {duration: "00:01:00", name: "teste", year: 2000}
     const song2: IClientSong = {duration: "00:01:00", name: "teste 2", year: 2000}
 
-    beforeAll( async () => {
-          execSync('npx prisma migrate reset --force --skip-seed', { stdio: 'inherit' });
+    const pathDatabase = path.resolve(__dirname, "../../../../test.db");
+    
+    beforeAll( async() => {
+        if(existsSync(pathDatabase)) {
+            unlinkSync(pathDatabase)
+        }
+        execSync("npx prisma db push", { stdio: "inherit" });
+
 
         albumService.setDependencies(artistService);
         artistService.setDependencies(albumService);

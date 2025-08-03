@@ -27,16 +27,18 @@ import SongWithRelationship from "../../../services/songWithRelationship.service
 import { ValidationError } from "../../../errors/validation.error"
 import database from "../../../prismaUtils/client"
 import { execSync } from "child_process"
+import { existsSync, unlinkSync } from "fs"
+import path from "path"
+ 
 
-
-describe('testes de integração de artist com suas relações',async () => {
+describe('testes de integração de artist com suas relações', () => {
     const albumRepository: IAlbumRepository = new AlbumRepository(database)
     const songRepository: ISongRepository = new SongRepository(database)
     const artistRepository: IArtistRepository  = new ArtistRepository(database)
     const composerRepository: IComposerRepository = new ComposerRepository(database)
     const songAlbumRepository: ISongAlbumRepository = new SongAlbumRepository(database)
     const songComposerRepository: ISongComposerRepository = new SongComposerRepository(database)
-    const albumService: IAlbumService = new AlbumService(albumRepository, database);
+    const albumService: IAlbumService = new AlbumService(albumRepository);
     const artistService: IArtistService = new ArtistService(artistRepository);
     const songService: ISongService = new SongService(songRepository);
     const composerService: IComposerService = new ComposerService(composerRepository);
@@ -51,9 +53,16 @@ describe('testes de integração de artist com suas relações',async () => {
     const album1: IClientAlbum = {title: "teste", year: 2000, artist_id: 1}
      const album2: IClientAlbum = {title: "teste 2", year: 2000, artist_id: 1}
      const album3: IClientAlbum = {title: "teste 3", year: 2000, artist_id: 2}
-    beforeAll(async () => {
-          execSync('npx prisma migrate reset --force --skip-seed', { stdio: 'inherit' });
+    const pathDatabase = path.resolve(__dirname, "../../../../test.db");
+    
+    beforeAll( async() => {
+        if(existsSync(pathDatabase)) {
+            unlinkSync(pathDatabase)
+        }
+        execSync("npx prisma db push", { stdio: "inherit" });
 
+
+           
          albumService.setDependencies(artistService);
 
         artistService.setDependencies(albumService);

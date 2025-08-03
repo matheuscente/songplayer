@@ -8,6 +8,9 @@ Uma API REST de estudo para gerenciamento de álbuns, músicas, compositores e a
 - SQLite
 - Joi (validações)
 - Jest (testes)
+- PrismaORM
+
+## Para testes, setar o DATABASE_URL do .env para "file:./test.db"
 
 ## Regras de negócio
 

@@ -39,9 +39,9 @@ export interface ISongAlbumController {
 export interface ISongAlbumRepository {
     create(songAlbum: ISongAlbum, tx: PrismaTransactionClient): Promise<void>,
     delete(songId: number, albumId: number, tx: PrismaTransactionClient): Promise<void>,
-    getById(songId: number, albumId: number):  Promise<ISongAlbum | undefined>,
-    getByAlbumId(albumId: number): Promise<ISongAlbum[]>,
-    getBySongId(songId: number):  Promise<ISongAlbum[]>
+    getById(songId: number, albumId: number, tx?: PrismaTransactionClient):  Promise<ISongAlbum | undefined>,
+    getByAlbumId(albumId: number, tx?: PrismaTransactionClient): Promise<ISongAlbum[]>,
+    getBySongId(songId: number, tx?: PrismaTransactionClient):  Promise<ISongAlbum[]>
 }
 
 

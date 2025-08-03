@@ -4,11 +4,11 @@ import { PrismaTransactionClient } from "../models/global.model";
 
 class ArtistRepository implements IArtistRepository {
     constructor(private readonly database: PrismaClient) {}
-    async getAll(): Promise<IDatabaseArtist[]> {
-        return this.database.artists.findMany() as Promise<IDatabaseArtist[]>
+    async getAll(tx = this.database): Promise<IDatabaseArtist[]> {
+        return tx.artists.findMany() as Promise<IDatabaseArtist[]>
     }
-     async getById(id: number): Promise<IDatabaseArtist | undefined> {
-        const artist =  await this.database.artists.findUnique({where: {id}})
+     async getById(id: number,tx = this.database): Promise<IDatabaseArtist | undefined> {
+        const artist =  await tx.artists.findUnique({where: {id}})
         if(!artist) return undefined
         return artist
     }
